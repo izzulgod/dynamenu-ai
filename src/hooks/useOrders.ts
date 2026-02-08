@@ -26,6 +26,7 @@ export function useSessionOrders(sessionId: string) {
       return data as OrderWithItems[];
     },
     enabled: !!sessionId,
+    refetchInterval: 3000, // Poll every 3s as fallback for realtime
   });
 
   // Subscribe to realtime updates for this session's orders
@@ -40,10 +41,13 @@ export function useSessionOrders(sessionId: string) {
           event: '*',
           schema: 'public',
           table: 'orders',
-          filter: `session_id=eq.${sessionId}`,
         },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['orders', sessionId] });
+        (payload: any) => {
+          // Only invalidate if it's relevant to this session
+          const newData = payload.new as any;
+          if (newData?.session_id === sessionId) {
+            queryClient.invalidateQueries({ queryKey: ['orders', sessionId] });
+          }
         }
       )
       .subscribe();
