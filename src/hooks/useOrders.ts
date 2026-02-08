@@ -4,7 +4,9 @@ import { Order, OrderWithItems } from '@/types/restaurant';
 import { useEffect } from 'react';
 
 export function useSessionOrders(sessionId: string) {
-  return useQuery({
+  const queryClient = useQueryClient();
+
+  const query = useQuery({
     queryKey: ['orders', sessionId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -25,6 +27,33 @@ export function useSessionOrders(sessionId: string) {
     },
     enabled: !!sessionId,
   });
+
+  // Subscribe to realtime updates for this session's orders
+  useEffect(() => {
+    if (!sessionId) return;
+
+    const channel = supabase
+      .channel(`session-orders-${sessionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'orders',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['orders', sessionId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [sessionId, queryClient]);
+
+  return query;
 }
 
 export function useAllOrders() {
