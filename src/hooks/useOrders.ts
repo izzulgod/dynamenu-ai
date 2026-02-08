@@ -29,26 +29,43 @@ export function useSessionOrders(sessionId: string) {
   });
 
   // Subscribe to realtime updates for this session's orders
+  // Use unfiltered subscription + polling fallback for reliability
   useEffect(() => {
     if (!sessionId) return;
 
+    const invalidate = () => {
+      queryClient.invalidateQueries({ queryKey: ['orders', sessionId] });
+    };
+
+    // Realtime subscription (unfiltered to avoid filter issues with special chars)
     const channel = supabase
-      .channel(`session-orders-${sessionId}`)
+      .channel(`session-orders-rt`)
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'orders',
-          filter: `session_id=eq.${sessionId}`,
         },
-        () => {
-          queryClient.invalidateQueries({ queryKey: ['orders', sessionId] });
+        (payload) => {
+          // Only invalidate if this change is for our session
+          const newData = payload.new as Record<string, unknown> | undefined;
+          const oldData = payload.old as Record<string, unknown> | undefined;
+          if (
+            newData?.session_id === sessionId ||
+            oldData?.session_id === sessionId
+          ) {
+            invalidate();
+          }
         }
       )
       .subscribe();
 
+    // Fallback polling every 3s to catch missed realtime events
+    const pollInterval = setInterval(invalidate, 3000);
+
     return () => {
+      clearInterval(pollInterval);
       supabase.removeChannel(channel);
     };
   }, [sessionId, queryClient]);
