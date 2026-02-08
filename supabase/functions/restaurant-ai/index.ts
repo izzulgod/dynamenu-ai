@@ -133,11 +133,11 @@ function parseAIActions(content: string, menuItems: Array<{ id: string; name: st
   
   // Look for action markers in the AI response
   // Format: [[ACTION:type:menuItemName:quantity:notes]]
-  const actionPattern = /\[\[ACTION:(add_to_cart|update_notes|remove_from_cart):([^:]+)(?::(\d+))?(?::([^\]]+))?\]\]/g;
+  const actionPattern = /\[\[ACTION:(add_to_cart|update_notes|remove_from_cart):([^:]+)(?::(\d+))?(?::([^\]]*))?\]\]/g;
   
   let match;
   while ((match = actionPattern.exec(content)) !== null) {
-    const [, type, menuItemName, quantityStr, notes] = match;
+    const [, type, menuItemName, quantityStr, rawNotes] = match;
     
     // Find menu item by name (case-insensitive partial match)
     const menuItem = menuItems.find(item => 
@@ -146,12 +146,27 @@ function parseAIActions(content: string, menuItems: Array<{ id: string; name: st
     );
     
     if (menuItem) {
+      let quantity = quantityStr ? parseInt(quantityStr, 10) : 1;
+      let notes = rawNotes?.trim() || undefined;
+      
+      // Fix AI bug: if notes is just a number (e.g. "2:" or "3"), it's actually the quantity
+      if (notes) {
+        const notesClean = notes.replace(/:$/, '').trim();
+        if (/^\d+$/.test(notesClean) && quantity <= 1) {
+          quantity = parseInt(notesClean, 10);
+          notes = undefined;
+        }
+      }
+      
+      // Ensure quantity is at least 1
+      if (quantity < 1) quantity = 1;
+      
       actions.push({
         type: type as AIAction['type'],
         menuItemId: menuItem.id,
         menuItemName: menuItem.name,
-        quantity: quantityStr ? parseInt(quantityStr, 10) : 1,
-        notes: notes || undefined,
+        quantity,
+        notes,
       });
     }
   }
@@ -379,13 +394,21 @@ ${cartContext.length > 0 ? JSON.stringify(cartContext, null, 2) : 'Kosong'}
 
 FITUR MANIPULASI KERANJANG:
 Kamu bisa menambahkan item ke keranjang atau menambahkan catatan dengan format khusus di akhir pesan.
-Format: [[ACTION:tipe:nama_menu:jumlah:catatan]]
+Format WAJIB: [[ACTION:tipe:nama_menu:JUMLAH:catatan]]
+- Parameter JUMLAH adalah ANGKA yang menunjukkan berapa banyak item yang dipesan. WAJIB diisi dengan angka yang benar.
+- Parameter catatan adalah TEKS untuk catatan tambahan (bukan angka jumlah). Kosongkan jika tidak ada catatan.
 
-Contoh action:
-- Tambah 1 Nasi Goreng: [[ACTION:add_to_cart:Nasi Goreng:1:]]
-- Tambah 2 Es Teh dengan catatan: [[ACTION:add_to_cart:Es Teh:2:Gula dikit]]
-- Tambah catatan alergi ke item di keranjang: [[ACTION:update_notes:Nasi Goreng:1:Tidak pakai kacang, alergi]]
-- Hapus dari keranjang: [[ACTION:remove_from_cart:Nasi Goreng:1:]]
+Contoh action yang BENAR:
+- Tambah 1 Nasi Goreng: [[ACTION:add_to_cart:Nasi Goreng Spesial:1:]]
+- Tambah 2 Es Teh Manis: [[ACTION:add_to_cart:Es Teh Manis:2:]]
+- Tambah 3 Jus Jeruk: [[ACTION:add_to_cart:Jus Jeruk Segar:3:]]
+- Tambah 2 Es Teh dengan catatan: [[ACTION:add_to_cart:Es Teh Manis:2:Gula dikit]]
+- Tambah catatan alergi: [[ACTION:update_notes:Nasi Goreng Spesial:1:Tidak pakai kacang, alergi]]
+- Hapus dari keranjang: [[ACTION:remove_from_cart:Nasi Goreng Spesial:1:]]
+
+CONTOH SALAH (JANGAN LAKUKAN INI):
+- [[ACTION:add_to_cart:Es Teh Manis:1:2:]] ← SALAH! Jumlah 2 malah masuk catatan
+- [[ACTION:add_to_cart:Nasi Goreng Spesial:1:3:]] ← SALAH! Jumlah 3 harus di parameter JUMLAH bukan catatan
 
 ATURAN PENTING:
 - Jawab dalam Bahasa Indonesia dengan santai tapi sopan
