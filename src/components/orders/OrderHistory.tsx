@@ -76,9 +76,14 @@ const paymentStatusConfig = {
 };
 
 // Helper to determine appropriate payment status display
-const getPaymentStatusDisplay = (order: { payment_method: string | null; payment_status: string | null }) => {
+const getPaymentStatusDisplay = (order: { status: string; payment_method: string | null; payment_status: string | null }) => {
   if (order.payment_status === 'paid') {
     return { label: 'Lunas', color: 'bg-green-100 text-green-800 border-green-300', icon: CheckCircle };
+  }
+  
+  // If order is cancelled, just show "Belum Bayar" without loading
+  if (order.status === 'cancelled') {
+    return { label: 'Belum Bayar', color: 'bg-red-100 text-red-800 border-red-300', icon: null };
   }
   
   if (order.payment_method === 'cash' && order.payment_status === 'pending') {
@@ -328,14 +333,14 @@ export function OrderHistory() {
                     </Badge>
                   </div>
                   
-                  {/* Payment pending info for cash */}
-                  {hasOngoingPayment && order.payment_method === 'cash' && (
+                  {/* Payment pending info - only show if NOT cancelled */}
+                  {hasOngoingPayment && order.status !== 'cancelled' && order.payment_method === 'cash' && (
                     <p className="text-xs text-amber-600 mt-2 flex items-center gap-1">
                       <Clock className="w-3 h-3" />
                       ⏳ Menunggu konfirmasi pembayaran dari waiter
                     </p>
                   )}
-                  {hasOngoingPayment && order.payment_method === 'qris' && (
+                  {hasOngoingPayment && order.status !== 'cancelled' && order.payment_method === 'qris' && (
                     <p className="text-xs text-blue-600 mt-2 flex items-center gap-1">
                       <QrCode className="w-3 h-3" />
                       📱 Menunggu scan QRIS
