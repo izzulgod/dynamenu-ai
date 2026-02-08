@@ -107,35 +107,69 @@ export function OrderHistory() {
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedOrderAmount, setSelectedOrderAmount] = useState(0);
 
-   // Track previous order statuses to detect kitchen cancellations
-   const prevOrdersRef = useRef<Map<string, string>>(new Map());
+   // Track previous order statuses and payment to detect real-time changes
+   const prevOrdersRef = useRef<Map<string, { status: string; paymentStatus: string }>>(new Map());
  
-   // Listen for orders being cancelled by kitchen
+   // Listen for all order status & payment changes from kitchen
    useEffect(() => {
      if (!orders) return;
  
-     const currentStatuses = new Map<string, string>();
+     const currentMap = new Map<string, { status: string; paymentStatus: string }>();
      
      orders.forEach(order => {
-       const prevStatus = prevOrdersRef.current.get(order.id);
-       currentStatuses.set(order.id, order.status);
+       const prev = prevOrdersRef.current.get(order.id);
+       currentMap.set(order.id, { status: order.status, paymentStatus: order.payment_status });
        
-       // If order was not cancelled before but now is cancelled
-       // Check if notes contain [Dibatalkan:] which indicates kitchen cancellation
-       if (prevStatus && prevStatus !== 'cancelled' && order.status === 'cancelled') {
-         if (order.notes?.includes('[Dibatalkan:')) {
-           toast.error(
-             'Pesanan dibatalkan oleh dapur',
-             { 
-               description: order.notes?.match(/\[Dibatalkan: (.+?)\]/)?.[1] || 'Ada kesalahan pada pesanan',
-               duration: 8000,
+       if (!prev) return; // First load, don't toast
+       
+       // Payment status changed to paid
+       if (prev.paymentStatus !== 'paid' && order.payment_status === 'paid') {
+         toast.success('💰 Pembayaran dikonfirmasi!', {
+           description: 'Pesanan akan segera diproses dapur.',
+           duration: 5000,
+         });
+       }
+       
+       // Order status changes
+       if (prev.status !== order.status) {
+         switch (order.status) {
+           case 'confirmed':
+             toast.info('✅ Pesanan dikonfirmasi!', {
+               description: 'Pesanan diterima oleh dapur.',
+               duration: 4000,
+             });
+             break;
+           case 'preparing':
+             toast.info('🍳 Pesanan sedang dimasak!', {
+               description: 'Chef sedang menyiapkan pesanan Anda.',
+               duration: 5000,
+             });
+             break;
+           case 'ready':
+             toast.success('🔔 Pesanan siap diantar!', {
+               description: 'Waiter akan mengantar pesanan ke meja Anda.',
+               duration: 6000,
+             });
+             break;
+           case 'delivered':
+             toast.success('🎉 Pesanan telah diantar!', {
+               description: 'Selamat menikmati! Terima kasih.',
+               duration: 5000,
+             });
+             break;
+           case 'cancelled':
+             if (order.notes?.includes('[Dibatalkan:')) {
+               toast.error('Pesanan dibatalkan oleh dapur', {
+                 description: order.notes?.match(/\[Dibatalkan: (.+?)\]/)?.[1] || 'Ada kesalahan pada pesanan',
+                 duration: 8000,
+               });
              }
-           );
+             break;
          }
        }
      });
  
-     prevOrdersRef.current = currentStatuses;
+     prevOrdersRef.current = currentMap;
    }, [orders]);
  
   const formatPrice = (price: number) => {
@@ -292,6 +326,51 @@ export function OrderHistory() {
                       <QrCode className="w-3 h-3" />
                       📱 Menunggu scan QRIS
                     </p>
+                  )}
+                  
+                  {/* Order Progress Tracker */}
+                  {order.status !== 'cancelled' && order.payment_status === 'paid' && (
+                    <div className="mt-3 pt-3 border-t border-border">
+                      <p className="text-xs font-medium text-muted-foreground mb-2">Progres Pesanan:</p>
+                      <div className="flex items-center gap-1">
+                        {[
+                          { key: 'confirmed', label: 'Dikonfirmasi', icon: '✅' },
+                          { key: 'preparing', label: 'Dimasak', icon: '🍳' },
+                          { key: 'ready', label: 'Siap Antar', icon: '🔔' },
+                          { key: 'delivered', label: 'Selesai', icon: '📦' },
+                        ].map((s, i, arr) => {
+                          const statusOrder = ['confirmed', 'preparing', 'ready', 'delivered'];
+                          const currentIdx = statusOrder.indexOf(order.status);
+                          const stepIdx = statusOrder.indexOf(s.key);
+                          const isActive = stepIdx <= currentIdx;
+                          const isCurrent = stepIdx === currentIdx;
+                          
+                          return (
+                            <div key={s.key} className="flex items-center flex-1">
+                              <div className={`flex flex-col items-center flex-1 ${isCurrent ? 'scale-110' : ''}`}>
+                                <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs transition-all ${
+                                  isActive 
+                                    ? 'bg-primary/10 border-2 border-primary' 
+                                    : 'bg-muted border-2 border-muted-foreground/20'
+                                }`}>
+                                  {s.icon}
+                                </div>
+                                <span className={`text-[10px] mt-1 text-center leading-tight ${
+                                  isActive ? 'text-primary font-medium' : 'text-muted-foreground'
+                                }`}>
+                                  {s.label}
+                                </span>
+                              </div>
+                              {i < arr.length - 1 && (
+                                <div className={`h-0.5 w-full mx-0.5 mt-[-12px] ${
+                                  stepIdx < currentIdx ? 'bg-primary' : 'bg-muted-foreground/20'
+                                }`} />
+                              )}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
                   )}
                 </CardHeader>
                 <CardContent>
