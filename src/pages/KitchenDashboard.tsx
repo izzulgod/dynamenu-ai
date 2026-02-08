@@ -55,6 +55,8 @@ export default function KitchenDashboard() {
   const confirmPayment = useConfirmCashPayment();
    const kitchenCancel = useKitchenCancelOrder();
    const [cancelReason, setCancelReason] = useState('');
+   // Track per-order pending state to prevent double-clicks
+   const [pendingOrderActions, setPendingOrderActions] = useState<Set<string>>(new Set());
 
   // Check auth AND staff authorization
   useEffect(() => {
@@ -152,33 +154,45 @@ export default function KitchenDashboard() {
   };
 
   const handleStatusUpdate = async (orderId: string, newStatus: OrderWithItems['status']) => {
+    if (pendingOrderActions.has(orderId)) return; // Prevent double-click
+    setPendingOrderActions(prev => new Set(prev).add(orderId));
     try {
       await updateStatus.mutateAsync({ orderId, status: newStatus });
-      toast.success(`Status diupdate: ${statusConfig[newStatus].label}`);
+      toast.success(`Status diupdate: ${statusConfig[newStatus].label}`, { id: `status-${orderId}-${newStatus}` });
     } catch (error) {
       toast.error('Gagal update status');
+    } finally {
+      setPendingOrderActions(prev => { const s = new Set(prev); s.delete(orderId); return s; });
     }
   };
 
   const handleConfirmCashPayment = async (orderId: string) => {
+    if (pendingOrderActions.has(orderId)) return;
+    setPendingOrderActions(prev => new Set(prev).add(orderId));
     try {
       await confirmPayment.mutateAsync(orderId);
-      toast.success('Pembayaran tunai dikonfirmasi!');
+      toast.success('Pembayaran tunai dikonfirmasi!', { id: `payment-${orderId}` });
     } catch (error) {
       toast.error('Gagal konfirmasi pembayaran');
+    } finally {
+      setPendingOrderActions(prev => { const s = new Set(prev); s.delete(orderId); return s; });
     }
   };
 
    const handleKitchenCancelOrder = async (orderId: string) => {
+     if (pendingOrderActions.has(orderId)) return;
+     setPendingOrderActions(prev => new Set(prev).add(orderId));
      try {
        await kitchenCancel.mutateAsync({ 
          orderId, 
          reason: cancelReason || 'Dibatalkan oleh dapur' 
        });
-       toast.success('Pesanan berhasil dibatalkan');
+       toast.success('Pesanan berhasil dibatalkan', { id: `cancel-${orderId}` });
        setCancelReason('');
      } catch (error) {
        toast.error('Gagal membatalkan pesanan');
+     } finally {
+       setPendingOrderActions(prev => { const s = new Set(prev); s.delete(orderId); return s; });
      }
    };
  
@@ -238,7 +252,7 @@ export default function KitchenDashboard() {
     const paymentMethod = order.payment_method ? paymentMethodConfig[order.payment_method] : null;
     const PaymentIcon = paymentMethod?.icon || CreditCard;
     const isPendingCashPayment = order.payment_method === 'cash' && order.payment_status === 'pending';
-
+    const isOrderPending = pendingOrderActions.has(order.id);
     return (
       <motion.div
         layout
@@ -334,9 +348,9 @@ export default function KitchenDashboard() {
                   size="sm"
                   className="w-full bg-amber-500 hover:bg-amber-600"
                   onClick={() => handleConfirmCashPayment(order.id)}
-                  disabled={confirmPayment.isPending}
+                  disabled={isOrderPending}
                 >
-                  {confirmPayment.isPending ? (
+                  {isOrderPending ? (
                     <Loader2 className="w-4 h-4 animate-spin mr-2" />
                   ) : (
                     <Banknote className="w-4 h-4 mr-2" />
@@ -352,7 +366,9 @@ export default function KitchenDashboard() {
                     size="sm"
                     className="flex-1"
                     onClick={() => handleStatusUpdate(order.id, 'confirmed')}
+                    disabled={isOrderPending}
                   >
+                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Konfirmasi
                   </Button>
                 )}
@@ -361,7 +377,9 @@ export default function KitchenDashboard() {
                     size="sm"
                     className="flex-1"
                     onClick={() => handleStatusUpdate(order.id, 'preparing')}
+                    disabled={isOrderPending}
                   >
+                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Mulai Masak
                   </Button>
                 )}
@@ -370,7 +388,9 @@ export default function KitchenDashboard() {
                     size="sm"
                     className="flex-1 bg-sage hover:bg-sage/90"
                     onClick={() => handleStatusUpdate(order.id, 'ready')}
+                    disabled={isOrderPending}
                   >
+                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Siap Antar
                   </Button>
                 )}
@@ -380,11 +400,12 @@ export default function KitchenDashboard() {
                     variant="outline"
                     className="flex-1"
                     onClick={() => handleStatusUpdate(order.id, 'delivered')}
+                    disabled={isOrderPending}
                   >
+                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Sudah Diantar
                   </Button>
                 )}
-                   
                    {/* Cancel/Close Order Button */}
                    <AlertDialog>
                      <AlertDialogTrigger asChild>

@@ -109,6 +109,8 @@ export function OrderHistory() {
 
    // Track previous order statuses and payment to detect real-time changes
    const prevOrdersRef = useRef<Map<string, { status: string; paymentStatus: string }>>(new Map());
+   // Track already-toasted changes to prevent duplicates from polling+realtime
+   const toastedRef = useRef<Set<string>>(new Set());
  
    // Listen for all order status & payment changes from kitchen
    useEffect(() => {
@@ -122,37 +124,48 @@ export function OrderHistory() {
        
        if (!prev) return; // First load, don't toast
        
+       // Create unique keys per order+change to deduplicate
+       const paymentKey = `${order.id}-payment-${order.payment_status}`;
+       const statusKey = `${order.id}-status-${order.status}`;
+       
        // Payment status changed to paid
-       if (prev.paymentStatus !== 'paid' && order.payment_status === 'paid') {
+       if (prev.paymentStatus !== 'paid' && order.payment_status === 'paid' && !toastedRef.current.has(paymentKey)) {
+         toastedRef.current.add(paymentKey);
          toast.success('💰 Pembayaran dikonfirmasi!', {
+           id: paymentKey,
            description: 'Pesanan akan segera diproses dapur.',
            duration: 5000,
          });
        }
        
        // Order status changes
-       if (prev.status !== order.status) {
+       if (prev.status !== order.status && !toastedRef.current.has(statusKey)) {
+         toastedRef.current.add(statusKey);
          switch (order.status) {
            case 'confirmed':
              toast.info('✅ Pesanan dikonfirmasi!', {
+               id: statusKey,
                description: 'Pesanan diterima oleh dapur.',
                duration: 4000,
              });
              break;
            case 'preparing':
              toast.info('🍳 Pesanan sedang dimasak!', {
+               id: statusKey,
                description: 'Chef sedang menyiapkan pesanan Anda.',
                duration: 5000,
              });
              break;
            case 'ready':
              toast.success('🔔 Pesanan siap diantar!', {
+               id: statusKey,
                description: 'Waiter akan mengantar pesanan ke meja Anda.',
                duration: 6000,
              });
              break;
            case 'delivered':
              toast.success('🎉 Pesanan telah diantar!', {
+               id: statusKey,
                description: 'Selamat menikmati! Terima kasih.',
                duration: 5000,
              });
@@ -160,6 +173,7 @@ export function OrderHistory() {
            case 'cancelled':
              if (order.notes?.includes('[Dibatalkan:')) {
                toast.error('Pesanan dibatalkan oleh dapur', {
+                 id: statusKey,
                  description: order.notes?.match(/\[Dibatalkan: (.+?)\]/)?.[1] || 'Ada kesalahan pada pesanan',
                  duration: 8000,
                });
