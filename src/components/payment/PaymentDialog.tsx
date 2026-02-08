@@ -46,6 +46,12 @@ export function PaymentDialog({
     setIsProcessing(false);
     
     if (currentOrder) {
+      // If order is cancelled, close the dialog
+      if (currentOrder.status === 'cancelled') {
+        onOpenChange(false);
+        return;
+      }
+      
       // If payment is already confirmed, show confirmation step
       if (currentOrder.payment_status === 'paid') {
         setStep('confirmed');
@@ -60,7 +66,7 @@ export function PaymentDialog({
       
       if (currentOrder.payment_method === 'qris' && currentOrder.payment_status === 'pending') {
         setStep('qris-waiting');
-        setQrisCountdown(60); // Reset countdown only for QRIS
+        setQrisCountdown(60);
         return;
       }
     }
