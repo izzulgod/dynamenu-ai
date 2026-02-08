@@ -67,7 +67,7 @@ export function CartSheet({ onCheckout, onNavigateToOrders }: CartSheetProps) {
     <Sheet>
       <SheetTrigger asChild>
         <Button
-          className="fixed bottom-6 right-6 w-14 h-14 rounded-full shadow-strong hover:scale-105 transition-transform z-50"
+          className="fixed bottom-20 right-6 w-14 h-14 rounded-full shadow-strong hover:scale-105 transition-transform z-50"
           size="icon"
         >
           <ShoppingBag className="w-6 h-6" />
