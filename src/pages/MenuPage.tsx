@@ -140,6 +140,7 @@ export default function MenuPage() {
                 )}
               </div>
             </div>
+            <CartSheet onNavigateToOrders={handleNavigateToOrders} inline />
           </div>
 
           {/* Category Tabs - only show on menu tab */}
@@ -236,9 +237,6 @@ export default function MenuPage() {
         </div>
       </nav>
 
-      {/* Cart FAB */}
-      <CartSheet onNavigateToOrders={handleNavigateToOrders} />
-      
       {/* Voice Assistant Floating Bubble */}
       <VoiceAssistantBubble />
     </div>
