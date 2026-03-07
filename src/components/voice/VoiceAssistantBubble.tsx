@@ -158,7 +158,7 @@
            initial={{ scale: 0, opacity: 0 }}
            animate={{ scale: 1, opacity: 1 }}
            exit={{ scale: 0, opacity: 0 }}
-           className="fixed bottom-20 left-6 z-50"
+           className="fixed bottom-[5.5rem] left-4 z-50"
          >
            <motion.button
              onClick={handleBubbleClick}
