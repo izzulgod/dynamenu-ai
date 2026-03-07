@@ -93,6 +93,18 @@ export const useCart = create<CartStore>()(
     }),
     {
       name: 'restaurant-cart',
+      storage: {
+        getItem: (name) => {
+          const str = sessionStorage.getItem(name);
+          return str ? JSON.parse(str) : null;
+        },
+        setItem: (name, value) => {
+          sessionStorage.setItem(name, JSON.stringify(value));
+        },
+        removeItem: (name) => {
+          sessionStorage.removeItem(name);
+        },
+      },
     }
   )
 );
