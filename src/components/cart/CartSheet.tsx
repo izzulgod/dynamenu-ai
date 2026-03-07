@@ -3,7 +3,7 @@ import { useCart } from '@/hooks/useCart';
 import { useCreateOrder } from '@/hooks/useOrders';
 import { getSessionId } from '@/lib/session';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ShoppingBag, Minus, Plus, Trash2, X } from 'lucide-react';
+import { ShoppingCart, Minus, Plus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -13,9 +13,10 @@ import { toast } from 'sonner';
 interface CartSheetProps {
   onCheckout?: () => void;
   onNavigateToOrders?: () => void;
+  inline?: boolean;
 }
 
-export function CartSheet({ onCheckout, onNavigateToOrders }: CartSheetProps) {
+export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: CartSheetProps) {
   const navigate = useNavigate();
   const { items, getTotalAmount, getTotalItems, updateQuantity, removeItem, clearCart, tableId, tableNumber } = useCart();
   const createOrder = useCreateOrder();
@@ -66,23 +67,34 @@ export function CartSheet({ onCheckout, onNavigateToOrders }: CartSheetProps) {
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button
-          className="fixed bottom-[5.5rem] right-4 w-14 h-14 rounded-full shadow-strong hover:scale-105 transition-transform z-50"
-          size="icon"
-        >
-          <ShoppingBag className="w-6 h-6" />
-          {totalItems > 0 && (
-            <Badge className="absolute -top-1 -right-1 w-6 h-6 p-0 flex items-center justify-center bg-sage text-sage-dark">
-              {totalItems}
-            </Badge>
-          )}
-        </Button>
+        {inline ? (
+          <button className="relative p-2 rounded-lg hover:bg-accent transition-colors">
+            <ShoppingCart className="w-6 h-6 text-foreground" />
+            {totalItems > 0 && (
+              <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground">
+                {totalItems}
+              </Badge>
+            )}
+          </button>
+        ) : (
+          <Button
+            className="fixed bottom-[5.5rem] right-4 w-14 h-14 rounded-full shadow-strong hover:scale-105 transition-transform z-50"
+            size="icon"
+          >
+            <ShoppingCart className="w-6 h-6" />
+            {totalItems > 0 && (
+              <Badge className="absolute -top-1 -right-1 w-6 h-6 p-0 flex items-center justify-center bg-sage text-sage-dark">
+                {totalItems}
+              </Badge>
+            )}
+          </Button>
+        )}
       </SheetTrigger>
 
       <SheetContent className="flex flex-col w-full sm:max-w-md">
         <SheetHeader>
           <SheetTitle className="flex items-center gap-2">
-            <ShoppingBag className="w-5 h-5 text-primary" />
+            <ShoppingCart className="w-5 h-5 text-primary" />
             Keranjang Pesanan
           </SheetTitle>
         </SheetHeader>
