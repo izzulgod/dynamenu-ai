@@ -120,11 +120,11 @@ export default function MenuPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
+    <div className="min-h-screen bg-background flex flex-col">
+      {/* Header - simplified without tabs */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
-        <div className="container py-4">
-          <div className="flex items-center justify-between mb-4">
+        <div className="container py-3">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden">
                 <img 
@@ -140,37 +140,23 @@ export default function MenuPage() {
                 )}
               </div>
             </div>
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'menu' | 'chat' | 'orders')}>
-              <TabsList className="grid grid-cols-3 w-56">
-                <TabsTrigger value="menu" className="gap-1 text-xs px-2">
-                  <Grid className="w-3 h-3" />
-                  Menu
-                </TabsTrigger>
-                <TabsTrigger value="orders" className="gap-1 text-xs px-2">
-                  <ClipboardList className="w-3 h-3" />
-                  Pesanan
-                </TabsTrigger>
-                <TabsTrigger value="chat" className="gap-1 text-xs px-2">
-                  <MessageCircle className="w-3 h-3" />
-                  Chat
-                </TabsTrigger>
-              </TabsList>
-            </Tabs>
           </div>
 
           {/* Category Tabs - only show on menu tab */}
           {activeTab === 'menu' && !categoriesLoading && (
-            <CategoryTabs
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory}
-            />
+            <div className="mt-3">
+              <CategoryTabs
+                categories={categories}
+                selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
+              />
+            </div>
           )}
         </div>
       </header>
 
       {/* Content */}
-      <main className="container py-6 pb-24">
+      <main className="container flex-1 py-4 pb-24">
         {activeTab === 'menu' ? (
           <>
             {/* Loading state */}
@@ -209,7 +195,7 @@ export default function MenuPage() {
         ) : activeTab === 'orders' ? (
           <OrderHistory />
         ) : (
-          <div className="h-[calc(100vh-200px)]">
+          <div className="h-[calc(100vh-160px)]">
             <AIChat
               messages={messages}
               onSendMessage={sendMessage}
@@ -219,6 +205,36 @@ export default function MenuPage() {
           </div>
         )}
       </main>
+
+      {/* Bottom Navigation Bar - Instagram style */}
+      <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border safe-area-bottom">
+        <div className="container flex items-center justify-around py-2">
+          {[
+            { key: 'menu' as const, icon: Grid, label: 'Menu' },
+            { key: 'orders' as const, icon: ClipboardList, label: 'Pesanan' },
+            { key: 'chat' as const, icon: MessageCircle, label: 'Chat AI' },
+          ].map(({ key, icon: Icon, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-xl transition-all duration-200 ${
+                activeTab === key
+                  ? 'text-primary'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              <Icon className={`w-5 h-5 transition-transform duration-200 ${activeTab === key ? 'scale-110' : ''}`} />
+              <span className={`text-[10px] font-medium ${activeTab === key ? 'font-semibold' : ''}`}>{label}</span>
+              {activeTab === key && (
+                <motion.div
+                  layoutId="bottomNavIndicator"
+                  className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full"
+                />
+              )}
+            </button>
+          ))}
+        </div>
+      </nav>
 
       {/* Cart FAB */}
       <CartSheet onNavigateToOrders={handleNavigateToOrders} />
