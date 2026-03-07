@@ -106,6 +106,14 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
           )}
         </div>
 
+        {/* Quick Add Button */}
+        <Button
+          size="icon"
+          onClick={handleAddToCart}
+          className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-primary text-primary-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-strong hover:scale-110"
+        >
+          <Plus className="w-5 h-5" />
+        </Button>
       </div>
 
       {/* Content */}
@@ -136,25 +144,15 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
           </div>
         )}
 
-        {/* Price and Add Button */}
+        {/* Price and Time */}
         <div className="flex items-center justify-between pt-2">
-          <div>
-            <span className="font-bold text-primary text-lg">
-              {formatPrice(item.price)}
-            </span>
-            <div className="flex items-center gap-1 text-muted-foreground text-xs mt-0.5">
-              <Clock className="w-3 h-3" />
-              <span>{item.preparation_time} min</span>
-            </div>
+          <span className="font-bold text-primary text-lg">
+            {formatPrice(item.price)}
+          </span>
+          <div className="flex items-center gap-1 text-muted-foreground text-sm">
+            <Clock className="w-3.5 h-3.5" />
+            <span>{item.preparation_time} min</span>
           </div>
-          <Button
-            size="sm"
-            onClick={handleAddToCart}
-            className="rounded-full px-3 h-9 gap-1 bg-primary text-primary-foreground shadow-md active:scale-95 transition-transform"
-          >
-            <Plus className="w-4 h-4" />
-            <span className="text-xs font-semibold">Tambah</span>
-          </Button>
         </div>
       </div>
     </motion.div>

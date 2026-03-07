@@ -54,7 +54,6 @@ interface SheetContentProps
 const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Content>, SheetContentProps>(
   ({ side = "right", className, children, ...props }, ref) => {
     const innerRef = React.useRef<HTMLDivElement | null>(null);
-    const closeRef = React.useRef<HTMLButtonElement | null>(null);
     const startX = React.useRef(0);
     const currentX = React.useRef(0);
     const isDragging = React.useRef(false);
@@ -69,9 +68,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       startX.current = e.touches[0].clientX;
       currentX.current = 0;
       isDragging.current = true;
-      if (innerRef.current) {
-        innerRef.current.style.transition = 'none';
-      }
+      if (innerRef.current) innerRef.current.style.transition = 'none';
     };
 
     const handleTouchMove = (e: React.TouchEvent) => {
@@ -79,32 +76,22 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       const diff = e.touches[0].clientX - startX.current;
       if (side === 'right' && diff > 0) {
         currentX.current = diff;
-        if (innerRef.current) {
-          innerRef.current.style.transform = `translateX(${diff}px)`;
-        }
+        if (innerRef.current) innerRef.current.style.transform = `translateX(${diff}px)`;
       }
     };
 
     const handleTouchEnd = () => {
       isDragging.current = false;
-      if (!innerRef.current) return;
-
-      if (currentX.current > 100) {
-        // Reset transform so Radix's own exit animation takes over cleanly
-        innerRef.current.style.transition = '';
-        innerRef.current.style.transform = '';
-        // Trigger Radix close which handles overlay dismissal
-        closeRef.current?.click();
-      } else {
-        innerRef.current.style.transition = 'transform 0.2s ease-out';
-        innerRef.current.style.transform = 'translateX(0)';
-        // Clean up inline styles after snap-back
-        setTimeout(() => {
-          if (innerRef.current) {
-            innerRef.current.style.transition = '';
-            innerRef.current.style.transform = '';
-          }
-        }, 200);
+      if (innerRef.current) {
+        innerRef.current.style.transition = 'transform 0.3s ease-out';
+        if (currentX.current > 100) {
+          innerRef.current.style.transform = `translateX(100%)`;
+          // Find and click close
+          const closeBtn = innerRef.current.querySelector('[data-sheet-close]') as HTMLElement;
+          if (closeBtn) closeBtn.click();
+        } else {
+          innerRef.current.style.transform = 'translateX(0)';
+        }
       }
       currentX.current = 0;
     };
@@ -122,8 +109,8 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         >
           {children}
           <SheetPrimitive.Close
-            ref={closeRef}
-            className="absolute right-4 top-6 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            data-sheet-close
+            className="absolute right-4 top-5 rounded-sm opacity-70 ring-offset-background transition-opacity data-[state=open]:bg-secondary hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
           >
             <X className="h-5 w-5" />
             <span className="sr-only">Close</span>
