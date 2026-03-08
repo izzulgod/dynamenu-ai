@@ -86,22 +86,9 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
         innerRef.current.style.transition = 'transform 0.3s ease-out';
         if (currentX.current > 100) {
           innerRef.current.style.transform = `translateX(100%)`;
-          // Blur any focused/active element to reset hover/active states
-          if (document.activeElement instanceof HTMLElement) {
-            document.activeElement.blur();
-          }
           // Find and click close
           const closeBtn = innerRef.current.querySelector('[data-sheet-close]') as HTMLElement;
-          if (closeBtn) {
-            closeBtn.click();
-            // Reset transform after close animation
-            setTimeout(() => {
-              if (innerRef.current) {
-                innerRef.current.style.transform = '';
-                innerRef.current.style.transition = '';
-              }
-            }, 350);
-          }
+          if (closeBtn) closeBtn.click();
         } else {
           innerRef.current.style.transform = 'translateX(0)';
         }
