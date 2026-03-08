@@ -27,7 +27,6 @@ export function CategoryTabs({
               : 'bg-card border border-border text-foreground hover:bg-secondary'
           )}
         >
-          <span>✨</span>
           <span className="font-medium">Semua</span>
         </motion.button>
 
