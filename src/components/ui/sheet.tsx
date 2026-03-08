@@ -83,25 +83,14 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const handleTouchEnd = () => {
       isDragging.current = false;
       if (innerRef.current) {
+        innerRef.current.style.transition = 'transform 0.3s ease-out';
         if (currentX.current > 100) {
-          innerRef.current.style.transition = 'transform 0.3s ease-out';
           innerRef.current.style.transform = `translateX(100%)`;
-          const el = innerRef.current;
-          setTimeout(() => {
-            // Reset inline styles before triggering close so Radix animations work cleanly
-            el.style.transition = '';
-            el.style.transform = '';
-            const closeBtn = el.querySelector('[data-sheet-close]') as HTMLElement;
-            if (closeBtn) closeBtn.click();
-          }, 280);
+          // Find and click close
+          const closeBtn = innerRef.current.querySelector('[data-sheet-close]') as HTMLElement;
+          if (closeBtn) closeBtn.click();
         } else {
-          innerRef.current.style.transition = 'transform 0.3s ease-out';
           innerRef.current.style.transform = 'translateX(0)';
-          const el = innerRef.current;
-          setTimeout(() => {
-            el.style.transition = '';
-            el.style.transform = '';
-          }, 300);
         }
       }
       currentX.current = 0;
