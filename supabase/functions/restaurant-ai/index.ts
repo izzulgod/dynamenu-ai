@@ -42,11 +42,10 @@ function validateSessionId(sessionId: unknown): string {
   if (sessionId.length < 10 || sessionId.length > 150) {
     throw new Error('sessionId must be between 10 and 150 characters');
   }
-  // Support both new UUID format and legacy format for backward compatibility
+  // UUID format only - no legacy pattern to prevent rate-limit bypass via trivial ID generation
   const uuidPattern = /^session_\d+_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const legacyPattern = /^session_\d+_[a-z0-9]+$/i;
   
-  if (!uuidPattern.test(sessionId) && !legacyPattern.test(sessionId)) {
+  if (!uuidPattern.test(sessionId)) {
     throw new Error('Invalid sessionId format');
   }
   return sessionId;
@@ -182,18 +181,42 @@ function cleanMessageFromActions(content: string): string {
 // Rate limiting configuration
 const RATE_LIMIT_REQUESTS = 15; // max requests per window
 const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute window
+const IP_RATE_LIMIT_REQUESTS = 30; // max requests per IP per window (higher since multiple sessions share IP)
 
-// Server-side rate limiting using Deno KV
-async function checkRateLimit(sessionId: string): Promise<{ allowed: boolean; remaining: number }> {
+// Extract client IP from request headers
+function getClientIp(req: Request): string {
+  return req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    req.headers.get('x-real-ip') ||
+    req.headers.get('cf-connecting-ip') ||
+    'unknown';
+}
+
+// Server-side rate limiting using Deno KV (dual: session + IP)
+async function checkRateLimit(sessionId: string, clientIp: string): Promise<{ allowed: boolean; remaining: number }> {
   try {
     const kv = await Deno.openKv();
-    const key = ['rate_limit', 'restaurant_ai', sessionId];
     const now = Date.now();
-    
+
+    // Check IP-based rate limit first (prevents new-session-ID bypass)
+    if (clientIp !== 'unknown') {
+      const ipKey = ['rate_limit', 'restaurant_ai_ip', clientIp];
+      const ipResult = await kv.get<{ count: number; resetAt: number }>(ipKey);
+
+      if (!ipResult.value || now > ipResult.value.resetAt) {
+        await kv.set(ipKey, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS }, { expireIn: RATE_LIMIT_WINDOW_MS });
+      } else if (ipResult.value.count >= IP_RATE_LIMIT_REQUESTS) {
+        console.warn(`IP rate limit exceeded for: ${clientIp}`);
+        return { allowed: false, remaining: 0 };
+      } else {
+        await kv.set(ipKey, { count: ipResult.value.count + 1, resetAt: ipResult.value.resetAt }, { expireIn: ipResult.value.resetAt - now });
+      }
+    }
+
+    // Check session-based rate limit
+    const key = ['rate_limit', 'restaurant_ai', sessionId];
     const result = await kv.get<{ count: number; resetAt: number }>(key);
     
     if (!result.value || now > result.value.resetAt) {
-      // New window - reset counter
       await kv.set(key, { count: 1, resetAt: now + RATE_LIMIT_WINDOW_MS }, { 
         expireIn: RATE_LIMIT_WINDOW_MS 
       });
@@ -201,13 +224,11 @@ async function checkRateLimit(sessionId: string): Promise<{ allowed: boolean; re
     }
     
     if (result.value.count >= RATE_LIMIT_REQUESTS) {
-      // Rate limit exceeded
       const retryAfter = Math.ceil((result.value.resetAt - now) / 1000);
       console.warn(`Rate limit exceeded for session: ${sessionId.substring(0, 20)}..., retry after: ${retryAfter}s`);
       return { allowed: false, remaining: 0 };
     }
     
-    // Increment counter
     await kv.set(key, { 
       count: result.value.count + 1, 
       resetAt: result.value.resetAt 
@@ -217,7 +238,6 @@ async function checkRateLimit(sessionId: string): Promise<{ allowed: boolean; re
     
     return { allowed: true, remaining: RATE_LIMIT_REQUESTS - result.value.count - 1 };
   } catch (error) {
-    // If KV fails, log and allow request (fail open to not block legitimate users)
     console.error('Rate limit check failed:', error);
     return { allowed: true, remaining: -1 };
   }
@@ -272,7 +292,8 @@ Deno.serve(async (req) => {
     }
 
     // Server-side rate limiting check BEFORE any expensive operations
-    const rateLimitResult = await checkRateLimit(validatedData.sessionId);
+    const clientIp = getClientIp(req);
+    const rateLimitResult = await checkRateLimit(validatedData.sessionId, clientIp);
     if (!rateLimitResult.allowed) {
       return new Response(
         JSON.stringify({ 

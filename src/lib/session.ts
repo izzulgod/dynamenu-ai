@@ -29,12 +29,10 @@ export function clearSession(): void {
   cachedSessionId = null;
 }
 
-// Validate session ID format - supports both legacy and new UUID format
+// Validate session ID format - UUID format only
 export function isValidSessionId(sessionId: string): boolean {
-  // New UUID format: session_timestamp_uuid
+  // UUID format: session_timestamp_uuid
   const uuidPattern = /^session_\d+_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  // Legacy format: session_timestamp_randomstring (for backward compatibility)
-  const legacyPattern = /^session_\d+_[a-z0-9]+$/i;
   
-  return uuidPattern.test(sessionId) || legacyPattern.test(sessionId);
+  return uuidPattern.test(sessionId);
 }
