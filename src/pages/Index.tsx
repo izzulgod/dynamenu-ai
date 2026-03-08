@@ -40,14 +40,11 @@ const Index = () => {
                 size="lg" 
                 className="gap-2 h-14 px-8 text-lg"
                 onClick={() => {
-                  // For now, show alert that camera access is needed
-                  // In production, this would open camera for QR scanning
                   alert('Fitur scan QR akan membuka kamera untuk scan kode QR di meja Anda. Untuk demo, silakan scroll ke bawah dan pilih nomor meja.');
                 }}
               >
                 <QrCode className="w-5 h-5" />
                 Scan QR Meja
-                <ArrowRight className="w-5 h-5" />
               </Button>
               <Link to="/admin">
                 <Button size="lg" variant="outline" className="gap-2 h-14 px-8 text-lg">
