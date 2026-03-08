@@ -110,7 +110,7 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
         <Button
           size="icon"
           onClick={handleAddToCart}
-          className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-primary text-primary-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-strong hover:scale-110"
+          className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-primary text-primary-foreground opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 shadow-strong hover:scale-110"
         >
           <Plus className="w-5 h-5" />
         </Button>
