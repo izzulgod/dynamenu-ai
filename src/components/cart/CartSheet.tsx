@@ -68,7 +68,7 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
     <Sheet>
       <SheetTrigger asChild>
         {inline ? (
-          <button className="relative p-2 rounded-lg hover:bg-accent transition-colors">
+          <button className="relative p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors">
             <ShoppingCart className="w-6 h-6 text-foreground" />
             {totalItems > 0 && (
               <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground">
