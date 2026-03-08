@@ -83,13 +83,14 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
     const handleTouchEnd = () => {
       isDragging.current = false;
       if (innerRef.current) {
-        innerRef.current.style.transition = 'transform 0.3s ease-out';
         if (currentX.current > 100) {
-          innerRef.current.style.transform = `translateX(100%)`;
-          // Find and click close
+          // Reset transform first, then trigger proper close via the close button
+          innerRef.current.style.transition = '';
+          innerRef.current.style.transform = '';
           const closeBtn = innerRef.current.querySelector('[data-sheet-close]') as HTMLElement;
           if (closeBtn) closeBtn.click();
         } else {
+          innerRef.current.style.transition = 'transform 0.3s ease-out';
           innerRef.current.style.transform = 'translateX(0)';
         }
       }
