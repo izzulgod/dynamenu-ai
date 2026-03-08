@@ -11,7 +11,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       position="top-center"
-      offset={80}
+      offset={{ top: 96, left: 16, right: 16 }}
+      mobileOffset={{ top: 96, left: 12, right: 12 }}
       toastOptions={{
         classNames: {
           toast:
