@@ -42,11 +42,10 @@ function validateSessionId(sessionId: unknown): string {
   if (sessionId.length < 10 || sessionId.length > 150) {
     throw new Error('sessionId must be between 10 and 150 characters');
   }
-  // Support both new UUID format and legacy format for backward compatibility
+  // UUID format only - no legacy pattern to prevent rate-limit bypass via trivial ID generation
   const uuidPattern = /^session_\d+_[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-  const legacyPattern = /^session_\d+_[a-z0-9]+$/i;
   
-  if (!uuidPattern.test(sessionId) && !legacyPattern.test(sessionId)) {
+  if (!uuidPattern.test(sessionId)) {
     throw new Error('Invalid sessionId format');
   }
   return sessionId;
