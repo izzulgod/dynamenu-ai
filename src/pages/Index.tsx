@@ -144,7 +144,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="container py-8 border-t border-border text-center">
         <p className="text-sm text-muted-foreground">
-          🍽️ RestoAI - Smart Restaurant Ordering System
+          🍽️ DynamenuAI - Smart Restaurant Ordering System
         </p>
       </footer>
     </div>

@@ -134,7 +134,7 @@ export default function MenuPage() {
                 />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">RestoAI</h1>
+                <h1 className="text-xl font-bold text-foreground">DynamenuAI</h1>
                 {table && (
                   <p className="text-sm text-muted-foreground">Meja {table.table_number}</p>
                 )}
