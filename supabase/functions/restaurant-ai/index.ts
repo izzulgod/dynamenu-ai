@@ -292,7 +292,8 @@ Deno.serve(async (req) => {
     }
 
     // Server-side rate limiting check BEFORE any expensive operations
-    const rateLimitResult = await checkRateLimit(validatedData.sessionId);
+    const clientIp = getClientIp(req);
+    const rateLimitResult = await checkRateLimit(validatedData.sessionId, clientIp);
     if (!rateLimitResult.allowed) {
       return new Response(
         JSON.stringify({ 
