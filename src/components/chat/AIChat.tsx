@@ -108,7 +108,7 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
           <div className="flex-1">
             <h3 className="font-semibold text-foreground">Asisten Restoran AI</h3>
             <p className="text-xs text-muted-foreground">
-              {tableNumber ? `Meja ${tableNumber}` : 'Siap membantu!'} • Bisa tambah ke keranjang! 🛒
+              {tableNumber ? `Meja ${tableNumber}` : 'Siap membantu!'}
             </p>
           </div>
           
