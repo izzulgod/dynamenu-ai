@@ -35,7 +35,7 @@ const Index = () => {
               Scan QR, chat dengan AI, dan nikmati hidangan lezat. Pengalaman makan yang lebih cerdas dan menyenangkan.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
               <Button 
                 size="lg" 
                 className="gap-2 h-14 px-8 text-lg"
