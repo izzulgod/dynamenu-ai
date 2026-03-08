@@ -21,14 +21,13 @@ export function CategoryTabs({
           whileTap={{ scale: 0.95 }}
           onClick={() => onSelectCategory(null)}
           className={cn(
-            'flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300',
+            'px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium',
             selectedCategory === null
               ? 'bg-primary text-primary-foreground shadow-glow'
               : 'bg-card border border-border text-foreground hover:bg-secondary'
           )}
         >
-          <span>✨</span>
-          <span className="font-medium">Semua</span>
+          Semua
         </motion.button>
 
         {/* Category buttons */}
