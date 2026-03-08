@@ -82,19 +82,37 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
 
     const handleTouchEnd = () => {
       isDragging.current = false;
-      if (innerRef.current) {
-        innerRef.current.style.transition = 'transform 0.3s ease-out';
-        if (currentX.current > 100) {
-          innerRef.current.style.transform = `translateX(100%)`;
-          // Find and click close
-          const closeBtn = innerRef.current.querySelector('[data-sheet-close]') as HTMLElement;
-          if (closeBtn) closeBtn.click();
-        } else {
-          innerRef.current.style.transform = 'translateX(0)';
-        }
+
+      if (!innerRef.current) {
+        currentX.current = 0;
+        return;
       }
+
+      innerRef.current.style.transition = 'transform 0.3s ease-out';
+
+      if (currentX.current > 100) {
+        // Jangan pakai translateX(100%) manual agar tidak ada state visual "tertutup" saat close gagal.
+        innerRef.current.style.transform = 'translateX(0)';
+
+        const closeBtn = innerRef.current.querySelector('[data-sheet-close]') as HTMLElement | null;
+        if (closeBtn) {
+          closeBtn.click();
+        }
+      } else {
+        innerRef.current.style.transform = 'translateX(0)';
+      }
+
       currentX.current = 0;
     };
+
+    React.useEffect(() => {
+      return () => {
+        if (innerRef.current) {
+          innerRef.current.style.transform = '';
+          innerRef.current.style.transition = '';
+        }
+      };
+    }, []);
 
     return (
       <SheetPortal>
@@ -105,6 +123,7 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
           onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
+          onTouchCancel={handleTouchEnd}
           {...props}
         >
           {children}
