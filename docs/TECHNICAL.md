@@ -1,8 +1,9 @@
-# 📚 RestoAI - Dokumentasi Teknis Lengkap
+# 📚 RestoAI (DynaMenu AI) - Dokumentasi Teknis Lengkap
 
-**Versi**: 1.0  
-**Terakhir Diperbarui**: Februari 2026  
-**Deskripsi**: Sistem pemesanan restoran cerdas dengan AI Assistant berbasis suara dan teks.
+**Versi**: 2.0  
+**Terakhir Diperbarui**: Maret 2026  
+**Deskripsi**: Sistem pemesanan restoran cerdas dengan AI Assistant berbasis suara dan teks.  
+**Published URL**: https://dynamenu-ai.lovable.app
 
 ---
 
@@ -22,16 +23,16 @@
 12. [Sistem Pembayaran](#12-sistem-pembayaran)
 13. [Realtime Subscriptions](#13-realtime-subscriptions)
 14. [Testing & Debugging](#14-testing--debugging)
-15. [Deployment](#15-deployment)
+15. [Deployment & Migrasi](#15-deployment--migrasi)
 
 ---
 
 ## 1. Gambaran Umum Sistem
 
-### 1.1 Apa itu RestoAI?
+### 1.1 Apa itu RestoAI / DynaMenu AI?
 
-RestoAI adalah sistem pemesanan restoran modern yang menggabungkan:
-- **AI Chat Assistant**: Pelanggan dapat memesan menggunakan bahasa natural
+RestoAI (DynaMenu AI) adalah sistem pemesanan restoran modern yang menggabungkan:
+- **AI Chat Assistant**: Pelanggan dapat memesan menggunakan bahasa natural (Bahasa Indonesia)
 - **Voice Assistant**: Pemesanan melalui suara dengan STT/TTS
 - **QR Code Ordering**: Scan QR di meja untuk akses langsung
 - **Realtime Kitchen Dashboard**: Pesanan langsung masuk ke dapur
@@ -67,6 +68,14 @@ RestoAI adalah sistem pemesanan restoran modern yang menggabungkan:
 └─────────────────────────────────────────────────────────────────┘
 ```
 
+### 1.4 Bahasa UI
+
+Seluruh antarmuka pengguna menggunakan **Bahasa Indonesia**, termasuk:
+- Kategori menu: Makanan Pembuka, Hidangan Utama, Minuman, Pencuci Mulut
+- Label tombol dan navigasi
+- Pesan AI assistant
+- Notifikasi dan toast messages
+
 ---
 
 ## 2. Arsitektur Sistem
@@ -84,7 +93,7 @@ RestoAI adalah sistem pemesanan restoran modern yang menggabungkan:
           │                 │                 │
           ▼                 ▼                 ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│                           API LAYER (Supabase)                          │
+│                     API LAYER (Lovable Cloud)                           │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
 │  │                      Supabase Client SDK                          │  │
 │  │   • REST API (PostgREST)                                          │  │
@@ -95,10 +104,10 @@ RestoAI adalah sistem pemesanan restoran modern yang menggabungkan:
           │                 │                 │
           ▼                 ▼                 ▼
 ┌────────────────────────────────────────────────────────────────────────┐
-│                          DATA LAYER (Supabase)                          │
+│                        DATA LAYER (Lovable Cloud)                       │
 │  ┌────────────────┐  ┌────────────────┐  ┌────────────────┐            │
-│  │   PostgreSQL   │  │   Supabase     │  │   Supabase     │            │
-│  │   Database     │  │   Auth         │  │   Storage      │            │
+│  │   PostgreSQL   │  │   Auth         │  │   Storage      │            │
+│  │   Database     │  │   Service      │  │   (aimenu)     │            │
 │  └────────────────┘  └────────────────┘  └────────────────┘            │
 └────────────────────────────────────────────────────────────────────────┘
           │
@@ -159,31 +168,35 @@ CUSTOMER ORDERING FLOW:
 | **React** | 18.3.x | UI Framework |
 | **TypeScript** | 5.x | Type Safety |
 | **Vite** | 5.x | Build Tool & Dev Server |
-| **Tailwind CSS** | 3.x | Styling |
+| **Tailwind CSS** | 3.x | Styling (semantic tokens) |
 | **shadcn/ui** | latest | UI Component Library |
 | **Framer Motion** | 12.x | Animations |
 | **TanStack Query** | 5.x | Server State Management |
 | **Zustand** | 5.x | Client State Management |
 | **React Router** | 6.x | Routing |
+| **Sonner** | 1.7.x | Toast Notifications |
+| **Recharts** | 2.x | Data Visualization |
 
-### 3.2 Backend (Supabase)
+### 3.2 Backend (Lovable Cloud)
 
 | Service | Purpose |
 |---------|---------|
 | **PostgreSQL** | Primary Database |
 | **PostgREST** | Auto-generated REST API |
 | **Realtime** | WebSocket Subscriptions |
-| **Auth** | Staff Authentication |
+| **Auth** | Staff Authentication (Email/Password) |
 | **Edge Functions** | Serverless Functions (Deno) |
-| **Storage** | File/Image Storage |
+| **Storage** | File/Image Storage (bucket: `aimenu`) |
 
 ### 3.3 AI & Voice
 
 | Service | Purpose |
 |---------|---------|
-| **Lovable AI Gateway** | AI Model Access (Gemini) |
-| **Web Speech API** | Browser-native STT |
-| **ElevenLabs** | Text-to-Speech |
+| **Lovable AI Gateway** | AI Model Access (Gemini 3 Flash Preview) |
+| **Web Speech API** | Browser-native STT (Speech-to-Text) |
+| **ElevenLabs** | Text-to-Speech (Indonesian voice) |
+
+> **Catatan**: Lovable AI Gateway bersifat spesifik platform. Jika migrasi ke hosting lain, perlu diganti ke provider AI langsung (Google Gemini / OpenAI). Lihat [docs/MIGRATION.md](./MIGRATION.md).
 
 ---
 
@@ -193,10 +206,11 @@ CUSTOMER ORDERING FLOW:
 project-root/
 ├── docs/                          # Dokumentasi
 │   ├── API.md                     # API Reference
-│   ├── DEPLOYMENT.md              # Deployment Guide
-│   └── TECHNICAL.md               # Technical Documentation (this file)
+│   ├── MIGRATION.md               # Panduan Migrasi ke Vercel/Netlify
+│   └── TECHNICAL.md               # Dokumentasi Teknis (file ini)
 │
 ├── public/                        # Static Assets
+│   ├── _redirects                 # Netlify SPA routing
 │   ├── favicon.ico
 │   ├── placeholder.svg
 │   └── robots.txt
@@ -208,7 +222,7 @@ project-root/
 │   │   ├── chat/
 │   │   │   └── AIChat.tsx         # AI Chat Interface
 │   │   ├── menu/
-│   │   │   ├── CategoryTabs.tsx   # Category Navigation
+│   │   │   ├── CategoryTabs.tsx   # Category Navigation (tanpa emoji)
 │   │   │   └── MenuItemCard.tsx   # Menu Item Display
 │   │   ├── orders/
 │   │   │   └── OrderHistory.tsx   # Order Tracking
@@ -221,60 +235,65 @@ project-root/
 │   │
 │   ├── hooks/                     # Custom React Hooks
 │   │   ├── useCart.ts             # Cart State (Zustand)
-│   │   ├── useChat.ts             # AI Chat Logic
-│   │   ├── useMenu.ts             # Menu Data Fetching
-│   │   ├── useOrders.ts           # Order CRUD Operations
-│   │   ├── useTable.ts            # Table Validation
-│   │   ├── useTTS.ts              # Text-to-Speech
-│   │   ├── useVoiceInput.ts       # Speech-to-Text
-│   │   ├── useCancelOrder.ts      # Customer Cancel Order
-│   │   ├── useDeleteOrder.ts      # Delete Cancelled Orders
+│   │   ├── useChat.ts            # AI Chat Logic
+│   │   ├── useMenu.ts            # Menu Data Fetching
+│   │   ├── useOrders.ts          # Order CRUD + Realtime
+│   │   ├── useTable.ts           # Table Validation
+│   │   ├── useTTS.ts             # Text-to-Speech
+│   │   ├── useVoiceInput.ts      # Speech-to-Text
+│   │   ├── useCancelOrder.ts     # Customer Cancel Order
+│   │   ├── useDeleteOrder.ts     # Delete Cancelled Orders
 │   │   ├── useKitchenCancelOrder.ts  # Kitchen Cancel Order
-│   │   └── useConfirmPayment.ts   # Cash Payment Confirmation
+│   │   ├── useConfirmPayment.ts  # Cash Payment Confirmation
+│   │   └── use-mobile.tsx        # Mobile Detection
 │   │
 │   ├── integrations/
 │   │   └── supabase/
-│   │       ├── client.ts          # Supabase Client (auto-generated)
-│   │       └── types.ts           # Database Types (auto-generated)
+│   │       ├── client.ts         # Supabase Client (auto-generated, JANGAN EDIT)
+│   │       └── types.ts          # Database Types (auto-generated, JANGAN EDIT)
 │   │
 │   ├── lib/
-│   │   ├── session.ts             # Session ID Management
-│   │   └── utils.ts               # Utility Functions
+│   │   ├── session.ts            # Session ID Management
+│   │   └── utils.ts              # Utility Functions (cn)
 │   │
-│   ├── pages/                     # Page Components
-│   │   ├── Index.tsx              # Landing Page
-│   │   ├── MenuPage.tsx           # Customer Menu Page
-│   │   ├── AdminLoginPage.tsx     # Staff Login
-│   │   ├── KitchenDashboard.tsx   # Kitchen Order Management
-│   │   ├── AdminMenuPage.tsx      # Menu Management
-│   │   └── NotFound.tsx           # 404 Page
+│   ├── pages/                    # Page Components
+│   │   ├── Index.tsx             # Landing Page
+│   │   ├── MenuPage.tsx          # Customer Menu Page
+│   │   ├── AdminLoginPage.tsx    # Staff Login
+│   │   ├── KitchenDashboard.tsx  # Kitchen Order Management
+│   │   ├── AdminMenuPage.tsx     # Menu Management (Admin)
+│   │   └── NotFound.tsx          # 404 Page
 │   │
 │   ├── stores/
-│   │   └── voiceAssistantStore.ts # Voice Assistant State
+│   │   └── voiceAssistantStore.ts # Voice Assistant State (Zustand)
 │   │
 │   ├── types/
-│   │   ├── restaurant.ts          # Domain Types
-│   │   └── ai-actions.ts          # AI Action Types
+│   │   ├── restaurant.ts         # Domain Types
+│   │   └── ai-actions.ts         # AI Action Types
 │   │
-│   ├── App.tsx                    # Root Component
-│   ├── App.css                    # Global Styles
-│   ├── index.css                  # Tailwind & CSS Variables
-│   └── main.tsx                   # Entry Point
+│   ├── App.tsx                   # Root Component & Routes
+│   ├── App.css                   # Global Styles
+│   ├── index.css                 # Tailwind & CSS Variables (Design System)
+│   ├── main.tsx                  # Entry Point
+│   └── NavLink.tsx               # Navigation Component
 │
 ├── supabase/
-│   ├── config.toml                # Supabase Configuration
-│   ├── migrations/                # Database Migrations
-│   └── functions/                 # Edge Functions
+│   ├── config.toml               # Supabase Configuration
+│   ├── migrations/               # Database Migrations (read-only)
+│   └── functions/                # Edge Functions
 │       ├── restaurant-ai/
-│       │   └── index.ts           # AI Chat Handler
+│       │   ├── index.ts          # AI Chat Handler
+│       │   └── deno.json         # Deno imports
 │       ├── elevenlabs-tts/
-│       │   └── index.ts           # TTS Proxy
+│       │   └── index.ts          # TTS Proxy
 │       └── create-demo-staff/
-│           └── index.ts           # Demo Staff Creation
+│           └── index.ts          # Demo Staff Creation
 │
-├── tailwind.config.ts             # Tailwind Configuration
-├── vite.config.ts                 # Vite Configuration
-└── tsconfig.json                  # TypeScript Configuration
+├── vercel.json                   # Vercel SPA routing config
+├── tailwind.config.ts            # Tailwind Configuration
+├── vite.config.ts                # Vite Configuration
+├── vitest.config.ts              # Vitest Test Configuration
+└── tsconfig.json                 # TypeScript Configuration
 ```
 
 ---
@@ -362,7 +381,18 @@ CREATE TYPE staff_role AS ENUM (
 );
 ```
 
-### 5.3 Key Tables Detail
+### 5.3 Kategori Menu (Default)
+
+| Nama | Deskripsi | Sort Order |
+|------|-----------|------------|
+| Makanan Pembuka | Hidangan pembuka | 1 |
+| Hidangan Utama | Menu utama | 2 |
+| Minuman | Aneka minuman | 3 |
+| Pencuci Mulut | Dessert | 4 |
+
+> Kategori ditampilkan tanpa emoji/icon di UI.
+
+### 5.4 Key Tables Detail
 
 #### orders
 ```typescript
@@ -392,11 +422,29 @@ interface OrderItem {
 }
 ```
 
+### 5.5 Realtime Publication
+
+```sql
+-- Tabel yang di-publish untuk realtime updates
+ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
+```
+
 ---
 
 ## 6. Alur Aplikasi (Application Flow)
 
-### 6.1 Customer Journey
+### 6.1 Routes
+
+| Path | Component | Deskripsi |
+|------|-----------|-----------|
+| `/` | `Index.tsx` | Landing page |
+| `/menu` | `MenuPage.tsx` | Halaman menu customer (query: `?table=N`) |
+| `/admin` | `AdminLoginPage.tsx` | Login staff |
+| `/admin/kitchen` | `KitchenDashboard.tsx` | Dashboard dapur |
+| `/admin/menu` | `AdminMenuPage.tsx` | Manajemen menu |
+| `*` | `NotFound.tsx` | 404 |
+
+### 6.2 Customer Journey
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -465,7 +513,7 @@ interface OrderItem {
    └─────────────────────────────────────────────────────────┘
 ```
 
-### 6.2 Kitchen Staff Journey
+### 6.3 Kitchen Staff Journey
 
 ```
 ┌──────────────────────────────────────────────────────────────────┐
@@ -478,6 +526,9 @@ interface OrderItem {
    │   Page      │     │   Staff     │     │  Dashboard  │
    │   /admin    │     │   Profile   │     │             │
    └─────────────┘     └─────────────┘     └─────────────┘
+
+   Catatan: Registrasi publik dinonaktifkan. Staff dibuat melalui
+   edge function create-demo-staff atau langsung di database.
 
 2. ORDER MANAGEMENT
    ┌─────────────────────────────────────────────────────────┐
@@ -521,7 +572,7 @@ interface OrderItem {
 // 5. Floating components: CartSheet, VoiceAssistantBubble
 
 // Key Features:
-// - Category-based menu browsing
+// - Category-based menu browsing (nama kategori dalam Bahasa Indonesia)
 // - AI Chat integration
 // - Order history with realtime updates
 // - Voice assistant floating bubble
@@ -555,6 +606,16 @@ interface OrderItem {
 // - Open payment dialog
 
 // State: Uses Zustand store (useCart)
+// UI: hover:bg-primary/10, active:bg-primary/20 (theme-consistent)
+```
+
+#### `CategoryTabs.tsx` - Navigasi Kategori
+```typescript
+// Features:
+// - Tab "Semua" untuk menampilkan semua menu
+// - Tab per kategori dari database
+// - Tanpa emoji/icon, hanya text
+// - Styling: primary color active state
 ```
 
 #### `PaymentDialog.tsx` - Dialog Pembayaran
@@ -575,7 +636,8 @@ type PaymentStep = 'select' | 'cash-waiting' | 'qris-waiting' | 'confirmed';
 // - Message history display
 // - Text input for user messages
 // - AI responses with typing indicator
-// - Action handling (add_to_cart, etc.)
+// - Action handling (add_to_cart, update_notes, remove_from_cart)
+// - Bahasa Indonesia responses
 ```
 
 #### `VoiceAssistantBubble.tsx` - Voice Assistant
@@ -589,7 +651,7 @@ type PaymentStep = 'select' | 'cash-waiting' | 'qris-waiting' | 'confirmed';
 // Flow:
 // 1. User speaks → STT converts to text
 // 2. Text sent to AI via useChat
-// 3. AI response spoken via TTS
+// 3. AI response spoken via TTS (ElevenLabs)
 // 4. Loop continues until deactivated
 ```
 
@@ -607,8 +669,8 @@ type PaymentStep = 'select' | 'cash-waiting' | 'qris-waiting' | 'confirmed';
 ['menu-items', categoryId?]       // Menu items by category
 
 // Orders
-['orders', sessionId]             // Session-specific orders
-['all-orders']                    // All orders (kitchen)
+['orders', sessionId]             // Session-specific orders (polling 3s + realtime)
+['all-orders']                    // All active orders (kitchen dashboard)
 
 // Chat
 ['chat-messages', sessionId]      // Chat history
@@ -670,6 +732,7 @@ interface VoiceAssistantStore {
 // Example: session_1706789012345_a1b2c3d4-e5f6-7890-abcd-ef1234567890
 
 // Storage: sessionStorage (per-tab, cleared on close)
+// Also passed as x-session-id header to Supabase client for RLS
 
 function getSessionId(): string {
   // Returns cached session or creates new one
@@ -686,7 +749,8 @@ function isValidSessionId(id: string): boolean {
 
 ### 9.1 `restaurant-ai` - AI Chat Handler
 
-**Endpoint**: `POST /functions/v1/restaurant-ai`
+**Endpoint**: `POST /functions/v1/restaurant-ai`  
+**JWT Verification**: Disabled (`verify_jwt = false` in config.toml)
 
 #### Request Flow:
 ```
@@ -708,8 +772,8 @@ function isValidSessionId(id: string): boolean {
    └── Get current cart state from request
 
 4. Call AI Gateway
-   ├── Build system prompt with context
-   ├── Send to Lovable AI Gateway (Gemini)
+   ├── Build system prompt with context (Bahasa Indonesia)
+   ├── Send to Lovable AI Gateway (Gemini 3 Flash Preview)
    └── Parse response for actions
 
 5. Response Processing
@@ -771,10 +835,11 @@ Examples:
 │   └── RLS policies use session_id for isolation             │
 │                                                              │
 │   STAFF (Authenticated)                                      │
-│   ├── Email/password login via Supabase Auth                │
+│   ├── Email/password login via Auth service                 │
 │   ├── JWT token in Authorization header                     │
 │   ├── Profile in staff_profiles table                       │
-│   └── Role-based access (admin, kitchen, waiter)            │
+│   ├── Role-based access (admin, kitchen, waiter)            │
+│   └── Registrasi publik DINONAKTIFKAN                       │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
 ```
@@ -831,6 +896,14 @@ RETURNS BOOLEAN AS $$
   )
 $$ LANGUAGE sql STABLE SECURITY DEFINER;
 ```
+
+### 10.4 Keamanan Penting
+
+- **Registrasi publik dinonaktifkan** — staff hanya bisa dibuat via admin/database
+- **Service role key TIDAK PERNAH** diexpose di frontend
+- **Session ID** divalidasi format-nya sebelum digunakan
+- **CORS headers** dikonfigurasi di setiap Edge Function
+- **Rate limiting** pada endpoint AI (15 req/menit per session)
 
 ---
 
@@ -1024,32 +1097,34 @@ Jika customer menutup dialog dan membuka kembali:
 │                   REALTIME SUBSCRIPTIONS                      │
 └──────────────────────────────────────────────────────────────┘
 
-CUSTOMER SIDE:
-─────────────
+CUSTOMER SIDE (useSessionOrders):
+─────────────────────────────────
 ┌─────────────────────┐
 │ OrderHistory        │
 │ Component           │
 └──────────┬──────────┘
            │ Subscribe to:
            │ orders WHERE session_id = current_session
+           │ + Polling fallback every 3 seconds
            ▼
 ┌─────────────────────┐
-│ Supabase Realtime   │
-│ Channel: orders     │
-│ event: UPDATE/DELETE│
+│ Realtime Channel    │
+│ session-orders-{id} │
+│ event: * (all)      │
 └──────────┬──────────┘
            │
            ▼
 ┌─────────────────────┐
 │ Effects:            │
+│ • Invalidate query  │
 │ • Update order list │
 │ • Show toast if     │
 │   cancelled         │
 │ • Update status UI  │
 └─────────────────────┘
 
-KITCHEN SIDE:
-─────────────
+KITCHEN SIDE (useAllOrders):
+────────────────────────────
 ┌─────────────────────┐
 │ KitchenDashboard    │
 │ Component           │
@@ -1058,8 +1133,8 @@ KITCHEN SIDE:
            │ orders (all active)
            ▼
 ┌─────────────────────┐
-│ Supabase Realtime   │
-│ Channel: orders     │
+│ Realtime Channel    │
+│ orders-realtime     │
 │ event: * (all)      │
 └──────────┬──────────┘
            │
@@ -1131,14 +1206,17 @@ useEffect(() => {
 # Run development server
 npm run dev
 
+# Run unit tests
+npx vitest
+
 # Test endpoints:
 # - Customer: http://localhost:5173/menu?table=1
 # - Kitchen: http://localhost:5173/admin/kitchen
+# - Admin Login: http://localhost:5173/admin
 # - Landing: http://localhost:5173/
 
-# Check Supabase logs:
-# - Edge function logs in Supabase dashboard
-# - Console logs in browser DevTools
+# Build check
+npm run build
 ```
 
 ### 14.2 Key Testing Scenarios
@@ -1151,14 +1229,14 @@ npm run dev
    - Verify order appears in kitchen
 
 2. **AI Chat Testing**
-   - Send text messages
+   - Send text messages (Bahasa Indonesia)
    - Test recommendations
    - Test cart manipulation via AI
    - Test allergies/notes
 
 3. **Voice Assistant Testing**
    - Activate voice mode
-   - Speak orders
+   - Speak orders (Bahasa Indonesia)
    - Verify TTS response
    - Test deactivation
 
@@ -1167,7 +1245,7 @@ npm run dev
    - See pending orders
    - Update order status
    - Confirm cash payments
-   - Cancel orders
+   - Cancel orders (with reason)
 
 5. **Realtime Updates**
    - Open customer and kitchen in separate tabs
@@ -1195,17 +1273,25 @@ supabase
 
 ---
 
-## 15. Deployment
+## 15. Deployment & Migrasi
 
-### 15.1 Environment Variables
+### 15.1 Current Deployment (Lovable)
+
+```
+Platform: Lovable Cloud
+Published URL: https://dynamenu-ai.lovable.app
+Backend: Lovable Cloud (Supabase-based)
+```
+
+### 15.2 Environment Variables
 
 ```env
-# Auto-generated by Lovable Cloud
+# Auto-managed by Lovable Cloud (JANGAN EDIT .env secara manual)
 VITE_SUPABASE_URL=https://xxx.supabase.co
 VITE_SUPABASE_PUBLISHABLE_KEY=eyJ...
 VITE_SUPABASE_PROJECT_ID=xxx
 
-# Edge Function Secrets (set in Supabase)
+# Edge Function Secrets (managed in Lovable Cloud)
 SUPABASE_URL
 SUPABASE_ANON_KEY
 SUPABASE_SERVICE_ROLE_KEY
@@ -1214,7 +1300,7 @@ ELEVENLABS_API_KEY      # For TTS
 DEMO_ADMIN_SECRET       # For demo staff creation
 ```
 
-### 15.2 Deployment Checklist
+### 15.3 Deployment Checklist
 
 ```
 □ Database migrations applied
@@ -1223,17 +1309,29 @@ DEMO_ADMIN_SECRET       # For demo staff creation
 □ Secrets configured
 □ Demo data cleaned (orders, chat, feedback)
 □ Staff accounts created
-□ Menu items added
+□ Menu items added with kategori Bahasa Indonesia
 □ Tables configured
-□ Storage buckets set up (if using images)
+□ Storage buckets set up (aimenu - public)
 ```
 
-### 15.3 URLs
+### 15.4 Migrasi ke Vercel / Netlify
 
-```
-Preview: https://xxx-preview--project-id.lovable.app
-Published: https://your-domain.lovable.app
-```
+Panduan lengkap migrasi tersedia di **[docs/MIGRATION.md](./MIGRATION.md)**, mencakup:
+- Setup Supabase project sendiri
+- Export & import database
+- Deploy Edge Functions
+- Penggantian AI provider (Lovable AI Gateway → Google Gemini / OpenAI)
+- Konfigurasi environment variables
+- Setup SPA routing (`vercel.json` / `_redirects`)
+- Konfigurasi domain & CORS
+
+### 15.5 File Konfigurasi Deployment
+
+| File | Platform | Fungsi |
+|------|----------|--------|
+| `vercel.json` | Vercel | SPA routing rewrite |
+| `public/_redirects` | Netlify | SPA routing redirect |
+| `supabase/config.toml` | Supabase | Edge function config |
 
 ---
 
@@ -1248,6 +1346,14 @@ export interface Table {
   table_number: number;
   is_active: boolean;
   capacity: number;
+}
+
+export interface MenuCategory {
+  id: string;
+  name: string;
+  description: string | null;
+  icon: string | null;
+  sort_order: number;
 }
 
 export interface MenuItem {
@@ -1282,6 +1388,11 @@ export interface Order {
   updated_at: string;
 }
 
+export interface OrderWithItems extends Order {
+  order_items: (OrderItem & { menu_items: MenuItem | null })[];
+  tables: Table | null;
+}
+
 // src/types/ai-actions.ts
 export interface AIAction {
   type: 'add_to_cart' | 'update_notes' | 'remove_from_cart';
@@ -1302,13 +1413,18 @@ export interface AIResponse {
 
 | Hook | Purpose | State Type |
 |------|---------|------------|
-| `useCart` | Cart management | Zustand |
-| `useChat` | AI chat functionality | TanStack Query |
+| `useCart` | Cart management | Zustand (localStorage) |
+| `useChat` | AI chat functionality | TanStack Query + mutation |
 | `useMenu` | Menu data fetching | TanStack Query |
-| `useOrders` | Order CRUD | TanStack Query |
+| `useOrders` | Order CRUD + Realtime | TanStack Query + subscription |
 | `useTable` | Table validation | TanStack Query |
-| `useTTS` | Text-to-Speech | Local state |
-| `useVoiceInput` | Speech-to-Text | Local state |
+| `useTTS` | Text-to-Speech (ElevenLabs) | Local state |
+| `useVoiceInput` | Speech-to-Text (Web API) | Local state |
+| `useCancelOrder` | Customer order cancellation | TanStack Mutation |
+| `useDeleteOrder` | Delete cancelled orders | TanStack Mutation |
+| `useKitchenCancelOrder` | Kitchen order cancellation | TanStack Mutation |
+| `useConfirmPayment` | Cash payment confirmation | TanStack Mutation |
+| `use-mobile` | Mobile device detection | Local state |
 
 ### C. API Rate Limits
 
@@ -1318,8 +1434,15 @@ export interface AIResponse {
 | Client-side chat | 2 seconds | Per request |
 | ElevenLabs TTS | Per API plan | - |
 
+### D. Dokumen Terkait
+
+| Dokumen | Deskripsi |
+|---------|-----------|
+| [docs/API.md](./API.md) | API Reference |
+| [docs/MIGRATION.md](./MIGRATION.md) | Panduan Migrasi ke Vercel/Netlify |
+
 ---
 
-**Dokumentasi ini terakhir diperbarui: Februari 2026**
+**Dokumentasi ini terakhir diperbarui: Maret 2026 (v2.0)**
 
 Untuk pertanyaan atau kontribusi, silakan buka issue di repository.
