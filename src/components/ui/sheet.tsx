@@ -105,6 +105,15 @@ const SheetContent = React.forwardRef<React.ElementRef<typeof SheetPrimitive.Con
       currentX.current = 0;
     };
 
+    React.useEffect(() => {
+      return () => {
+        if (innerRef.current) {
+          innerRef.current.style.transform = '';
+          innerRef.current.style.transition = '';
+        }
+      };
+    }, []);
+
     return (
       <SheetPortal>
         <SheetOverlay />
