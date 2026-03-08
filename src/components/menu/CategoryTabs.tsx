@@ -21,13 +21,14 @@ export function CategoryTabs({
           whileTap={{ scale: 0.95 }}
           onClick={() => onSelectCategory(null)}
           className={cn(
-            'px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium',
+            'flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300',
             selectedCategory === null
               ? 'bg-primary text-primary-foreground shadow-glow'
               : 'bg-card border border-border text-foreground hover:bg-secondary'
           )}
         >
-          Semua
+          <span>✨</span>
+          <span className="font-medium">Semua</span>
         </motion.button>
 
         {/* Category buttons */}
@@ -37,13 +38,14 @@ export function CategoryTabs({
             whileTap={{ scale: 0.95 }}
             onClick={() => onSelectCategory(category.id)}
             className={cn(
-              'px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300 font-medium',
+              'flex items-center gap-2 px-4 py-2 rounded-full whitespace-nowrap transition-all duration-300',
               selectedCategory === category.id
                 ? 'bg-primary text-primary-foreground shadow-glow'
                 : 'bg-card border border-border text-foreground hover:bg-secondary'
             )}
           >
-            {category.name}
+            <span>{category.icon || '🍽️'}</span>
+            <span className="font-medium">{category.name}</span>
           </motion.button>
         ))}
       </div>
