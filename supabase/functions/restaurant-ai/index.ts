@@ -249,9 +249,12 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Support both Google Gemini (for self-hosted) and Lovable AI Gateway (for Lovable platform)
+    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
+    
+    if (!GOOGLE_API_KEY && !LOVABLE_API_KEY) {
+      console.error("Neither GOOGLE_API_KEY nor LOVABLE_API_KEY is configured");
       return new Response(
         JSON.stringify({ 
           error: "Service unavailable",
