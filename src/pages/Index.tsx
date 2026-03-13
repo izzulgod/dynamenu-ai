@@ -149,8 +149,8 @@ const Index = () => {
             rel="noopener noreferrer"
             className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-card border border-border hover:border-primary hover:shadow-md transition-all duration-300 group"
           >
-            <div className="w-12 h-12 rounded-xl bg-green-500 flex items-center justify-center">
-              <Phone className="w-6 h-6 text-white" />
+            <div className="w-12 h-12 rounded-xl bg-sage flex items-center justify-center">
+              <Phone className="w-6 h-6 text-primary-foreground" />
             </div>
             <span className="font-medium text-foreground group-hover:text-primary transition-colors">WhatsApp</span>
             <span className="text-sm text-muted-foreground">Chat langsung</span>
