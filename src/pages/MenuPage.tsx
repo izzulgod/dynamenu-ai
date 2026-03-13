@@ -22,19 +22,19 @@ import { toast } from 'sonner';
 export default function MenuPage() {
   const [searchParams] = useSearchParams();
   const tableNumber = searchParams.get('table') ? parseInt(searchParams.get('table')!) : null;
-  
+
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<'menu' | 'chat' | 'orders'>('menu');
-  
+
   const sessionId = getSessionId();
-  
+
   const { data: table, isLoading: tableLoading, error: tableError } = useTable(tableNumber);
   const { data: categories = [], isLoading: categoriesLoading } = useCategories();
   const { data: menuItems = [], isLoading: menuLoading } = useMenuItems(selectedCategory ?? undefined);
-  
+
   const { setTable, tableId } = useCart();
   const { messages, sendMessage, isLoading: chatLoading } = useChat(sessionId, table?.id ?? null, {
-    menuItems,
+    menuItems
   });
 
   const handleNavigateToOrders = useCallback(() => {
@@ -65,9 +65,9 @@ export default function MenuPage() {
       }
       localStorage.setItem(storageKey, '1');
     } catch {
+
       // If storage is blocked, we still rely on the ref (best-effort)
     }
-
     greetingSentRef.current = true;
     sendMessage(`Halo! Aku baru sampai di meja ${table.table_number}`).catch(console.error);
   }, [table, messages.length, sendMessage, chatLoading, sessionId]);
@@ -79,8 +79,8 @@ export default function MenuPage() {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="text-center max-w-md"
-        >
+          className="text-center max-w-md">
+          
           <div className="w-20 h-20 mx-auto bg-destructive/10 rounded-full flex items-center justify-center mb-6">
             <AlertTriangle className="w-10 h-10 text-destructive" />
           </div>
@@ -92,8 +92,8 @@ export default function MenuPage() {
             Coba Lagi
           </Button>
         </motion.div>
-      </div>
-    );
+      </div>);
+
   }
 
   // No table specified - show welcome
@@ -103,8 +103,8 @@ export default function MenuPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="text-center max-w-md"
-        >
+          className="text-center max-w-md">
+          
           <div className="text-7xl mb-6">🍽️</div>
           <h1 className="text-3xl font-bold text-foreground mb-2">Selamat Datang!</h1>
           <p className="text-muted-foreground mb-6">
@@ -115,8 +115,8 @@ export default function MenuPage() {
             <span>Cari QR code di meja Anda</span>
           </div>
         </motion.div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -127,44 +127,44 @@ export default function MenuPage() {
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden">
-                <img 
-                  src="/placeholder.svg" 
-                  alt="Restaurant Logo" 
-                  className="w-full h-full object-cover"
-                />
+                <img
+
+                  alt="Restaurant Logo"
+                  className="w-full h-full object-cover" src="/lovable-uploads/2d8b9b22-d300-4b8f-8528-06aafbe9f5e1.png" />
+                
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">DynamenuAI</h1>
-                {table && (
-                  <p className="text-sm text-muted-foreground">Meja {table.table_number}</p>
-                )}
+                {table &&
+                <p className="text-sm text-muted-foreground">Meja {table.table_number}</p>
+                }
               </div>
             </div>
             <CartSheet onNavigateToOrders={handleNavigateToOrders} inline />
           </div>
 
           {/* Category Tabs - only show on menu tab */}
-          {activeTab === 'menu' && !categoriesLoading && (
-            <div className="mt-3">
+          {activeTab === 'menu' && !categoriesLoading &&
+          <div className="mt-3">
               <CategoryTabs
-                categories={categories}
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-              />
+              categories={categories}
+              selectedCategory={selectedCategory}
+              onSelectCategory={setSelectedCategory} />
+            
             </div>
-          )}
+          }
         </div>
       </header>
 
       {/* Content */}
       <main className="container flex-1 py-4 pb-24">
-        {activeTab === 'menu' ? (
-          <>
+        {activeTab === 'menu' ?
+        <>
             {/* Loading state */}
-            {menuLoading ? (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="rounded-xl overflow-hidden">
+            {menuLoading ?
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {[...Array(8)].map((_, i) =>
+            <div key={i} className="rounded-xl overflow-hidden">
                     <Skeleton className="h-40 w-full" />
                     <div className="p-4 space-y-2">
                       <Skeleton className="h-5 w-3/4" />
@@ -172,73 +172,73 @@ export default function MenuPage() {
                       <Skeleton className="h-6 w-1/2" />
                     </div>
                   </div>
-                ))}
-              </div>
-            ) : (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-              >
-                {menuItems.map((item, index) => (
-                  <MenuItemCard key={item.id} item={item} index={index} />
-                ))}
-              </motion.div>
             )}
+              </div> :
 
-            {menuItems.length === 0 && !menuLoading && (
-              <div className="text-center py-12">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            
+                {menuItems.map((item, index) =>
+            <MenuItemCard key={item.id} item={item} index={index} />
+            )}
+              </motion.div>
+          }
+
+            {menuItems.length === 0 && !menuLoading &&
+          <div className="text-center py-12">
                 <div className="text-5xl mb-4">🍽️</div>
                 <p className="text-muted-foreground">Tidak ada menu di kategori ini</p>
               </div>
-            )}
-          </>
-        ) : activeTab === 'orders' ? (
-          <OrderHistory />
-        ) : (
-          <div className="h-[calc(100vh-160px)]">
+          }
+          </> :
+        activeTab === 'orders' ?
+        <OrderHistory /> :
+
+        <div className="h-[calc(100vh-160px)]">
             <AIChat
-              messages={messages}
-              onSendMessage={sendMessage}
-              isLoading={chatLoading}
-              tableNumber={table?.table_number ?? null}
-            />
+            messages={messages}
+            onSendMessage={sendMessage}
+            isLoading={chatLoading}
+            tableNumber={table?.table_number ?? null} />
+          
           </div>
-        )}
+        }
       </main>
 
       {/* Bottom Navigation Bar - Instagram style */}
       <nav className="fixed bottom-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-md border-t border-border safe-area-bottom">
         <div className="container flex items-center justify-around py-2">
           {[
-            { key: 'menu' as const, icon: Grid, label: 'Menu' },
-            { key: 'orders' as const, icon: ClipboardList, label: 'Pesanan' },
-            { key: 'chat' as const, icon: MessageCircle, label: 'Chat AI' },
-          ].map(({ key, icon: Icon, label }) => (
-            <button
-              key={key}
-              onClick={() => setActiveTab(key)}
-              className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-xl transition-all duration-200 ${
-                activeTab === key
-                  ? 'text-primary'
-                  : 'text-muted-foreground hover:text-foreground'
-              }`}
-            >
+          { key: 'menu' as const, icon: Grid, label: 'Menu' },
+          { key: 'orders' as const, icon: ClipboardList, label: 'Pesanan' },
+          { key: 'chat' as const, icon: MessageCircle, label: 'Chat AI' }].
+          map(({ key, icon: Icon, label }) =>
+          <button
+            key={key}
+            onClick={() => setActiveTab(key)}
+            className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-xl transition-all duration-200 ${
+            activeTab === key ?
+            'text-primary' :
+            'text-muted-foreground hover:text-foreground'}`
+            }>
+            
               <Icon className={`w-5 h-5 transition-transform duration-200 ${activeTab === key ? 'scale-110' : ''}`} />
               <span className={`text-[10px] font-medium ${activeTab === key ? 'font-semibold' : ''}`}>{label}</span>
-              {activeTab === key && (
-                <motion.div
-                  layoutId="bottomNavIndicator"
-                  className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full"
-                />
-              )}
+              {activeTab === key &&
+            <motion.div
+              layoutId="bottomNavIndicator"
+              className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
+
+            }
             </button>
-          ))}
+          )}
         </div>
       </nav>
 
       {/* Voice Assistant Floating Bubble */}
       <VoiceAssistantBubble />
-    </div>
-  );
+    </div>);
+
 }
