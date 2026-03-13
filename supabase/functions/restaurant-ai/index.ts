@@ -249,12 +249,9 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Support both Google Gemini (for self-hosted) and Lovable AI Gateway (for Lovable platform)
-    const GOOGLE_API_KEY = Deno.env.get("GOOGLE_API_KEY");
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!GOOGLE_API_KEY && !LOVABLE_API_KEY) {
-      console.error("Neither GOOGLE_API_KEY nor LOVABLE_API_KEY is configured");
+    if (!LOVABLE_API_KEY) {
+      console.error("LOVABLE_API_KEY is not configured");
       return new Response(
         JSON.stringify({ 
           error: "Service unavailable",
@@ -469,34 +466,24 @@ AI: "Sip kak, terima kasih! Pesanan sedang kami siapkan. Silakan tunggu sebentar
       ...messages.slice(-10),
     ];
 
-    console.log("Calling AI with", aiMessages.length, "messages");
+    console.log("Calling AI gateway with", aiMessages.length, "messages");
 
-    // Use Google Gemini directly if available, otherwise fall back to Lovable Gateway
-    const aiUrl = GOOGLE_API_KEY
-      ? "https://generativelanguage.googleapis.com/v1beta/openai/chat/completions"
-      : "https://ai.gateway.lovable.dev/v1/chat/completions";
-    
-    const aiAuthHeader = GOOGLE_API_KEY
-      ? `Bearer ${GOOGLE_API_KEY}`
-      : `Bearer ${LOVABLE_API_KEY}`;
-
-    const aiModel = GOOGLE_API_KEY
-      ? "gemini-2.0-flash"
-      : "google/gemini-3-flash-preview";
-
-    const aiResponse = await fetch(aiUrl, {
-      method: "POST",
-      headers: {
-        Authorization: aiAuthHeader,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: aiModel,
-        messages: aiMessages,
-        temperature: 0.8,
-        max_tokens: 500,
-      }),
-    });
+    const aiResponse = await fetch(
+      "https://ai.gateway.lovable.dev/v1/chat/completions",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${LOVABLE_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          model: "google/gemini-3-flash-preview",
+          messages: aiMessages,
+          temperature: 0.8,
+          max_tokens: 500,
+        }),
+      }
+    );
 
     if (!aiResponse.ok) {
       const errorText = await aiResponse.text();

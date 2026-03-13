@@ -2,9 +2,3 @@ project_id = "dewkymjoublfacoaudft"
 
 [functions.restaurant-ai]
 verify_jwt = false
-
-[functions.elevenlabs-tts]
-verify_jwt = false
-
-[functions.create-demo-staff]
-verify_jwt = false
