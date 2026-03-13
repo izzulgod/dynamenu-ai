@@ -38,14 +38,14 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
           menuItemId: item.menuItem.id,
           quantity: item.quantity,
           unitPrice: item.menuItem.price,
-          notes: item.notes,
+          notes: item.notes
         })),
-        totalAmount: getTotalAmount(),
+        totalAmount: getTotalAmount()
       });
 
       clearCart();
       toast.success('Pesanan berhasil dibuat! Silakan lakukan pembayaran.');
-      
+
       // Navigate to orders tab
       if (onNavigateToOrders) {
         onNavigateToOrders();
@@ -60,35 +60,35 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
       currency: 'IDR',
-      minimumFractionDigits: 0,
+      minimumFractionDigits: 0
     }).format(price);
   };
 
   return (
     <Sheet>
       <SheetTrigger asChild>
-        {inline ? (
-          <button className="relative p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors">
-            <ShoppingCart className="w-6 h-6 text-foreground" />
-            {totalItems > 0 && (
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground">
+        {inline ?
+        <button className="relative p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors">
+            <ShoppingCart className="text-foreground w-[25px] h-[25px]" />
+            {totalItems > 0 &&
+          <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground">
                 {totalItems}
               </Badge>
-            )}
-          </button>
-        ) : (
-          <Button
-            className="fixed bottom-[5.5rem] right-4 w-14 h-14 rounded-full shadow-strong hover:scale-105 transition-transform z-50"
-            size="icon"
-          >
+          }
+          </button> :
+
+        <Button
+          className="fixed bottom-[5.5rem] right-4 w-14 h-14 rounded-full shadow-strong hover:scale-105 transition-transform z-50"
+          size="icon">
+          
             <ShoppingCart className="w-6 h-6" />
-            {totalItems > 0 && (
-              <Badge className="absolute -top-1 -right-1 w-6 h-6 p-0 flex items-center justify-center bg-sage text-sage-dark">
+            {totalItems > 0 &&
+          <Badge className="absolute -top-1 -right-1 w-6 h-6 p-0 flex items-center justify-center bg-sage text-sage-dark">
                 {totalItems}
               </Badge>
-            )}
+          }
           </Button>
-        )}
+        }
       </SheetTrigger>
 
       <SheetContent className="flex flex-col w-full sm:max-w-md">
@@ -99,40 +99,40 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
           </SheetTitle>
         </SheetHeader>
 
-        {items.length === 0 ? (
-          <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
+        {items.length === 0 ?
+        <div className="flex-1 flex flex-col items-center justify-center text-center p-8">
             <div className="text-6xl mb-4">🛒</div>
             <p className="text-muted-foreground">Keranjang masih kosong</p>
             <p className="text-sm text-muted-foreground mt-1">
               Yuk pilih menu favoritmu!
             </p>
-          </div>
-        ) : (
-          <>
+          </div> :
+
+        <>
             <div className="flex-1 overflow-y-auto py-4 space-y-4">
               <AnimatePresence mode="popLayout">
-                {items.map((item) => (
-                  <motion.div
-                    key={item.menuItem.id}
-                    layout
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: -20 }}
-                    className="flex gap-4 p-3 rounded-xl bg-secondary/50"
-                  >
+                {items.map((item) =>
+              <motion.div
+                key={item.menuItem.id}
+                layout
+                initial={{ opacity: 0, x: 20 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -20 }}
+                className="flex gap-4 p-3 rounded-xl bg-secondary/50">
+                
                     {/* Image */}
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-cream-dark shrink-0">
-                      {item.menuItem.image_url ? (
-                        <img
-                          src={item.menuItem.image_url}
-                          alt={item.menuItem.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-2xl">
+                      {item.menuItem.image_url ?
+                  <img
+                    src={item.menuItem.image_url}
+                    alt={item.menuItem.name}
+                    className="w-full h-full object-cover" /> :
+
+
+                  <div className="w-full h-full flex items-center justify-center text-2xl">
                           🍽️
                         </div>
-                      )}
+                  }
                     </div>
 
                     {/* Details */}
@@ -147,36 +147,36 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2 mt-2">
                         <Button
-                          size="icon"
-                          variant="outline"
-                          className="w-7 h-7"
-                          onClick={() => updateQuantity(item.menuItem.id, item.quantity - 1)}
-                        >
+                      size="icon"
+                      variant="outline"
+                      className="w-7 h-7"
+                      onClick={() => updateQuantity(item.menuItem.id, item.quantity - 1)}>
+                      
                           <Minus className="w-3 h-3" />
                         </Button>
                         <span className="w-8 text-center font-medium">
                           {item.quantity}
                         </span>
                         <Button
-                          size="icon"
-                          variant="outline"
-                          className="w-7 h-7"
-                          onClick={() => updateQuantity(item.menuItem.id, item.quantity + 1)}
-                        >
+                      size="icon"
+                      variant="outline"
+                      className="w-7 h-7"
+                      onClick={() => updateQuantity(item.menuItem.id, item.quantity + 1)}>
+                      
                           <Plus className="w-3 h-3" />
                         </Button>
                         <Button
-                          size="icon"
-                          variant="ghost"
-                          className="w-7 h-7 text-destructive ml-auto"
-                          onClick={() => removeItem(item.menuItem.id)}
-                        >
+                      size="icon"
+                      variant="ghost"
+                      className="w-7 h-7 text-destructive ml-auto"
+                      onClick={() => removeItem(item.menuItem.id)}>
+                      
                           <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </div>
                   </motion.div>
-                ))}
+              )}
               </AnimatePresence>
             </div>
 
@@ -189,16 +189,16 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
                 <span className="text-primary">{formatPrice(totalAmount)}</span>
               </div>
               <Button
-                className="w-full h-12 text-lg font-semibold"
-                onClick={handlePlaceOrder}
-                disabled={createOrder.isPending}
-              >
+              className="w-full h-12 text-lg font-semibold"
+              onClick={handlePlaceOrder}
+              disabled={createOrder.isPending}>
+              
                 {createOrder.isPending ? 'Memproses...' : 'Pesan Sekarang'}
               </Button>
             </div>
           </>
-        )}
+        }
       </SheetContent>
-    </Sheet>
-  );
+    </Sheet>);
+
 }
