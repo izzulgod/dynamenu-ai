@@ -340,6 +340,30 @@ Deno.serve(async (req) => {
       console.error("Error fetching menu:", menuError);
     }
 
+    // Fetch active promotions with their items
+    const { data: activePromos, error: promoError } = await supabase
+      .from("promotions")
+      .select(`
+        id,
+        name,
+        description,
+        discount_type,
+        discount_value,
+        end_date,
+        promotion_items (
+          menu_item_id,
+          promo_price,
+          menu_items (name, price)
+        )
+      `)
+      .eq("is_active", true)
+      .lte("start_date", new Date().toISOString())
+      .or(`end_date.is.null,end_date.gte.${new Date().toISOString()}`);
+
+    if (promoError) {
+      console.error("Error fetching promos:", promoError);
+    }
+
     // Fetch current orders for this session
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY");
     const supabaseAdmin = SUPABASE_SERVICE_ROLE_KEY 
@@ -377,6 +401,36 @@ Deno.serve(async (req) => {
       recommended: item.is_recommended,
       prepTime: `${item.preparation_time} menit`,
     })) || [];
+
+    // Build promo context
+    const promoContext = activePromos?.map((promo: Record<string, unknown>) => {
+      const items = (promo.promotion_items as Array<Record<string, unknown>>)?.map((pi) => {
+        const mi = pi.menu_items as Record<string, unknown>;
+        const originalPrice = mi?.price as number;
+        let finalPrice: number;
+        if (pi.promo_price != null) {
+          finalPrice = pi.promo_price as number;
+        } else if (promo.discount_type === 'percent') {
+          finalPrice = originalPrice * (1 - (promo.discount_value as number) / 100);
+        } else {
+          finalPrice = Math.max(0, originalPrice - (promo.discount_value as number));
+        }
+        return {
+          name: mi?.name,
+          originalPrice: `Rp${originalPrice?.toLocaleString('id-ID')}`,
+          promoPrice: `Rp${Math.round(finalPrice).toLocaleString('id-ID')}`,
+        };
+      }) || [];
+      return {
+        name: promo.name,
+        description: promo.description,
+        discount: promo.discount_type === 'percent' 
+          ? `${promo.discount_value}%` 
+          : `Rp${(promo.discount_value as number).toLocaleString('id-ID')}`,
+        endDate: promo.end_date || 'Tidak ada batas waktu',
+        items,
+      };
+    }) || [];
 
     // Build order context
     const orderContext = sessionOrders?.map((order: Record<string, unknown>) => ({
