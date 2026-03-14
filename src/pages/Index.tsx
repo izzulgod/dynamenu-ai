@@ -23,16 +23,16 @@ const Index = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
-          >
+            className="text-center max-w-3xl mx-auto">
+            
             <motion.img
               src={logoImg}
               alt="DynamenuAI Logo"
               className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-md ring-2 ring-primary/20 p-1 bg-card"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
-              transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            />
+              transition={{ type: 'spring', stiffness: 200, damping: 15 }} />
+            
 
             <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-6">
               <Sparkles className="w-4 h-4" />
@@ -52,8 +52,8 @@ const Index = () => {
               <Button
                 size="lg"
                 className="gap-2 h-14 px-8 text-lg"
-                onClick={() => setScannerOpen(true)}
-              >
+                onClick={() => setScannerOpen(true)}>
+                
                 <QrCode className="w-5 h-5" />
                 Scan QR Meja
               </Button>
@@ -74,8 +74,8 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grid md:grid-cols-3 gap-8"
-        >
+          className="grid md:grid-cols-3 gap-8">
+          
           <div className="text-center p-6 rounded-2xl bg-card border border-border">
             <div className="w-16 h-16 mx-auto bg-primary/10 rounded-2xl flex items-center justify-center mb-4">
               <QrCode className="w-8 h-8 text-primary" />
@@ -114,8 +114,8 @@ const Index = () => {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          className="text-center mb-12"
-        >
+          className="text-center mb-12">
+          
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
             Hubungi Kami
           </h2>
@@ -128,14 +128,14 @@ const Index = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto"
-        >
+          className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 max-w-4xl mx-auto">
+          
           <a
             href="https://instagram.com/dynamenuai"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-card border border-border hover:border-primary hover:shadow-md transition-all duration-300 group"
-          >
+            className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-card border border-border hover:border-primary hover:shadow-md transition-all duration-300 group">
+            
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
               <Instagram className="w-6 h-6 text-primary-foreground" />
             </div>
@@ -147,8 +147,8 @@ const Index = () => {
             href="https://wa.me/6281234567890"
             target="_blank"
             rel="noopener noreferrer"
-            className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-card border border-border hover:border-primary hover:shadow-md transition-all duration-300 group"
-          >
+            className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-card border border-border hover:border-primary hover:shadow-md transition-all duration-300 group">
+            
             <div className="w-12 h-12 rounded-xl bg-sage flex items-center justify-center">
               <Phone className="w-6 h-6 text-primary-foreground" />
             </div>
@@ -158,8 +158,8 @@ const Index = () => {
 
           <a
             href="mailto:hello@dynamenuai.com"
-            className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-card border border-border hover:border-primary hover:shadow-md transition-all duration-300 group"
-          >
+            className="flex flex-col items-center gap-3 p-6 rounded-2xl bg-card border border-border hover:border-primary hover:shadow-md transition-all duration-300 group">
+            
             <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
               <Mail className="w-6 h-6 text-primary-foreground" />
             </div>
@@ -181,14 +181,14 @@ const Index = () => {
       <footer className="container py-8 border-t border-border text-center flex flex-col items-center gap-2">
         <img src={logoImg} alt="DynamenuAI" className="w-8 h-8 rounded-lg ring-1 ring-primary/15 p-0.5 bg-card" />
         <p className="text-sm text-muted-foreground">
-          DynamenuAI - Smart Restaurant Ordering System
+          DynamenuAI - AI-Powered Restaurant System 
         </p>
       </footer>
 
       {/* QR Scanner Dialog */}
       <QRScannerDialog open={scannerOpen} onOpenChange={setScannerOpen} />
-    </div>
-  );
+    </div>);
+
 };
 
 export default Index;
