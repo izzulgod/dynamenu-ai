@@ -10,6 +10,7 @@ import MenuPage from "./pages/MenuPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import KitchenDashboard from "./pages/KitchenDashboard";
 import AdminMenuPage from "./pages/AdminMenuPage";
+import AdminPromoPage from "./pages/AdminPromoPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
