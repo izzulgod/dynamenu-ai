@@ -28,7 +28,7 @@ const Index = () => {
             <motion.img
               src={logoImg}
               alt="DynamenuAI Logo"
-              className="w-20 h-20 mx-auto mb-6"
+              className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-md ring-2 ring-primary/20 p-1 bg-card"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 15 }}
@@ -179,7 +179,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="container py-8 border-t border-border text-center flex flex-col items-center gap-2">
-        <img src={logoImg} alt="DynamenuAI" className="w-8 h-8" />
+        <img src={logoImg} alt="DynamenuAI" className="w-8 h-8 rounded-lg ring-1 ring-primary/15 p-0.5 bg-card" />
         <p className="text-sm text-muted-foreground">
           DynamenuAI - Smart Restaurant Ordering System
         </p>
