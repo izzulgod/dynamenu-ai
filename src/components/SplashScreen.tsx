@@ -33,7 +33,7 @@ const SplashScreen = ({ show }: SplashScreenProps) => {
           <motion.img
             src={logoImg}
             alt="DynamenuAI"
-            className="w-24 h-24 md:w-32 md:h-32 relative z-10"
+            className="w-24 h-24 md:w-32 md:h-32 relative z-10 rounded-3xl shadow-lg ring-2 ring-primary/20 p-1 bg-card"
             initial={{ scale: 0, rotate: -180 }}
             animate={{ scale: 1, rotate: 0 }}
             transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.1 }}
