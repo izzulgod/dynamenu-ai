@@ -30,7 +30,6 @@ export interface CartItem {
   menuItem: MenuItem;
   quantity: number;
   notes?: string;
-  promoPrice?: number | null;
 }
 
 export interface Order {

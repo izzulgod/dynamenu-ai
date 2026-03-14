@@ -34,17 +34,12 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
       await createOrder.mutateAsync({
         tableId,
         sessionId,
-        items: items.map((item) => {
-          const effectivePrice = (item.promoPrice != null && item.promoPrice < item.menuItem.price)
-            ? item.promoPrice
-            : item.menuItem.price;
-          return {
-            menuItemId: item.menuItem.id,
-            quantity: item.quantity,
-            unitPrice: effectivePrice,
-            notes: item.notes
-          };
-        }),
+        items: items.map((item) => ({
+          menuItemId: item.menuItem.id,
+          quantity: item.quantity,
+          unitPrice: item.menuItem.price,
+          notes: item.notes
+        })),
         totalAmount: getTotalAmount()
       });
 
@@ -145,20 +140,9 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
                       <h4 className="font-medium text-foreground truncate">
                         {item.menuItem.name}
                       </h4>
-                      {item.promoPrice != null && item.promoPrice < item.menuItem.price ? (
-                        <div className="flex items-center gap-2">
-                          <p className="text-muted-foreground text-xs line-through">
-                            {formatPrice(item.menuItem.price)}
-                          </p>
-                          <p className="text-destructive font-semibold">
-                            {formatPrice(item.promoPrice)}
-                          </p>
-                        </div>
-                      ) : (
-                        <p className="text-primary font-semibold">
-                          {formatPrice(item.menuItem.price)}
-                        </p>
-                      )}
+                      <p className="text-primary font-semibold">
+                        {formatPrice(item.menuItem.price)}
+                      </p>
                       
                       {/* Quantity Controls */}
                       <div className="flex items-center gap-2 mt-2">

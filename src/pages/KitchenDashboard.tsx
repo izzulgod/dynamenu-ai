@@ -490,22 +490,13 @@ export default function KitchenDashboard() {
             </div>
             <div className="flex items-center gap-2">
               {staffRole === 'admin' && (
-                <>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/admin/menu')}
-                  >
-                    <UtensilsCrossed className="w-4 h-4 mr-2" />
-                    Kelola Menu
-                  </Button>
-                  <Button
-                    variant="outline"
-                    onClick={() => navigate('/admin/promo')}
-                  >
-                    <Bell className="w-4 h-4 mr-2" />
-                    Kelola Promo
-                  </Button>
-                </>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/admin/menu')}
+                >
+                  <UtensilsCrossed className="w-4 h-4 mr-2" />
+                  Kelola Menu
+                </Button>
               )}
               <Button
                 variant="outline"

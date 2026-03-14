@@ -1,17 +1,15 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList, Percent } from 'lucide-react';
+import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList } from 'lucide-react';
 import { useTable } from '@/hooks/useTable';
 import { useCategories, useMenuItems } from '@/hooks/useMenu';
 import { useCart } from '@/hooks/useCart';
 import { useChat } from '@/hooks/useChat';
 import { useCreateOrder } from '@/hooks/useOrders';
-import { useActivePromotions, getPromoPrice, getDiscountBadge } from '@/hooks/usePromotions';
 import { getSessionId } from '@/lib/session';
 import { MenuItemCard } from '@/components/menu/MenuItemCard';
 import { CategoryTabs } from '@/components/menu/CategoryTabs';
-import { PromoTab } from '@/components/menu/PromoTab';
 import { CartSheet } from '@/components/cart/CartSheet';
 import { AIChat } from '@/components/chat/AIChat';
 import { OrderHistory } from '@/components/orders/OrderHistory';
@@ -26,8 +24,7 @@ export default function MenuPage() {
   const tableNumber = searchParams.get('table') ? parseInt(searchParams.get('table')!) : null;
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'menu' | 'chat' | 'orders' | 'promo'>('menu');
-  const { data: promotions } = useActivePromotions();
+  const [activeTab, setActiveTab] = useState<'menu' | 'chat' | 'orders'>('menu');
 
   const sessionId = getSessionId();
 
@@ -183,19 +180,9 @@ export default function MenuPage() {
             animate={{ opacity: 1 }}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             
-                {menuItems.map((item, index) => {
-                  const promoPrice = getPromoPrice(item.id, item.price, promotions);
-                  const discountBadge = getDiscountBadge(item.id, item.price, promotions);
-                  return (
-                    <MenuItemCard
-                      key={item.id}
-                      item={item}
-                      index={index}
-                      promoPrice={promoPrice}
-                      discountBadge={discountBadge}
-                    />
-                  );
-                })}
+                {menuItems.map((item, index) =>
+            <MenuItemCard key={item.id} item={item} index={index} />
+            )}
               </motion.div>
           }
 
@@ -206,8 +193,6 @@ export default function MenuPage() {
               </div>
           }
           </> :
-        activeTab === 'promo' ?
-        <PromoTab /> :
         activeTab === 'orders' ?
         <OrderHistory /> :
 
@@ -227,7 +212,6 @@ export default function MenuPage() {
         <div className="container flex items-center justify-around py-2">
           {[
           { key: 'menu' as const, icon: Grid, label: 'Menu' },
-          { key: 'promo' as const, icon: Percent, label: 'Promo' },
           { key: 'orders' as const, icon: ClipboardList, label: 'Pesanan' },
           { key: 'chat' as const, icon: MessageCircle, label: 'Chat AI' }].
           map(({ key, icon: Icon, label }) =>
