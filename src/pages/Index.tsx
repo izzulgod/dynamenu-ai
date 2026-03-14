@@ -28,7 +28,7 @@ const Index = () => {
             <motion.img
               src={logoImg}
               alt="DynamenuAI Logo"
-              className="w-20 h-20 mx-auto mb-6"
+              className="w-20 h-20 mx-auto mb-6 rounded-2xl shadow-md ring-2 ring-primary/20 p-1 bg-card"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 15 }}
