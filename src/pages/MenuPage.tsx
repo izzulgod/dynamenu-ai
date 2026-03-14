@@ -205,6 +205,9 @@ export default function MenuPage() {
               </div>
           }
           </> :
+          </> :
+        activeTab === 'promo' ?
+        <PromoTab /> :
         activeTab === 'orders' ?
         <OrderHistory /> :
 
