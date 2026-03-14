@@ -33,7 +33,7 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
     },
     onError: (error) => {
       toast.error(error);
-    },
+    }
   });
 
   // Update input as user speaks
@@ -53,11 +53,11 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
 
   const handleSendMessage = useCallback(async (messageText: string) => {
     if (!messageText.trim() || isLoading) return;
-    
+
     // Show user message immediately in UI
     setPendingUserMessage(messageText);
     setInput('');
-    
+
     try {
       const response = await onSendMessage(messageText);
       // Clear pending message after server confirms
@@ -83,20 +83,20 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
   };
 
   const quickSuggestions = [
-    'Menu rekomendasinya apa?',
-    'Ada yang pedas ga?',
-    'Minuman segar dong!',
-    'Aku alergi kacang',
-  ];
+  'Menu rekomendasinya apa?',
+  'Ada yang pedas ga?',
+  'Minuman segar dong!',
+  'Aku alergi kacang'];
+
 
   const actionExamples = [
-    { icon: ShoppingCart, text: 'Masukin Nasi Goreng ke keranjang' },
-    { icon: FileText, text: 'Tambah catatan: tidak pedas' },
-  ];
+  { icon: ShoppingCart, text: 'Masukin Nasi Goreng ke keranjang' },
+  { icon: FileText, text: 'Tambah catatan: tidak pedas' }];
+
 
   // Combine server messages with pending user message
   const displayMessages = [...messages];
-  
+
   return (
     <div className="flex flex-col h-full bg-card rounded-2xl border border-border overflow-hidden">
       {/* Header */}
@@ -106,7 +106,7 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
             <Bot className="w-5 h-5" />
           </div>
           <div className="flex-1">
-            <h3 className="font-semibold text-foreground">Asisten Restoran AI</h3>
+            <h3 className="font-semibold text-foreground">Asisten AI Restoran</h3>
             <p className="text-xs text-muted-foreground">
               {tableNumber ? `Meja ${tableNumber}` : 'Siap membantu!'}
             </p>
@@ -130,89 +130,89 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
           
           {/* Quick suggestions */}
           <div className="flex flex-wrap justify-center gap-2 mb-6">
-            {quickSuggestions.map((suggestion) => (
-              <Button
-                key={suggestion}
-                variant="outline"
-                size="sm"
-                className="text-xs"
-                onClick={() => {
-                  setInput(suggestion);
-                  inputRef.current?.focus();
-                }}
-              >
+            {quickSuggestions.map((suggestion) =>
+            <Button
+              key={suggestion}
+              variant="outline"
+              size="sm"
+              className="text-xs"
+              onClick={() => {
+                setInput(suggestion);
+                inputRef.current?.focus();
+              }}>
+              
                 {suggestion}
               </Button>
-            ))}
+            )}
           </div>
 
           {/* Action examples hint */}
           <div className="bg-muted/50 rounded-xl p-4 text-left max-w-xs mx-auto">
             <p className="text-xs font-medium text-muted-foreground mb-2">💡 Fitur baru:</p>
             <div className="space-y-2">
-              {actionExamples.map((example, i) => (
-                <button
-                  key={i}
-                  className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-left"
-                  onClick={() => {
-                    setInput(example.text);
-                    inputRef.current?.focus();
-                  }}
-                >
+              {actionExamples.map((example, i) =>
+              <button
+                key={i}
+                className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors w-full text-left"
+                onClick={() => {
+                  setInput(example.text);
+                  inputRef.current?.focus();
+                }}>
+                
                   <example.icon className="w-3 h-3 text-primary" />
                   <span>"{example.text}"</span>
                 </button>
-              ))}
+              )}
             </div>
           </div>
         </div>
 
         <AnimatePresence mode="popLayout">
           {/* Render confirmed messages from server */}
-          {displayMessages.map((message, index) => (
-            <motion.div
-              key={message.id || `msg-${index}`}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className={cn(
-                'flex gap-3',
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              )}
-            >
-              {message.role === 'assistant' && (
-                <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
+          {displayMessages.map((message, index) =>
+          <motion.div
+            key={message.id || `msg-${index}`}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0 }}
+            className={cn(
+              'flex gap-3',
+              message.role === 'user' ? 'justify-end' : 'justify-start'
+            )}>
+            
+              {message.role === 'assistant' &&
+            <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center shrink-0">
                   <Bot className="w-4 h-4 text-secondary-foreground" />
                 </div>
-              )}
+            }
               
               <div
-                className={cn(
-                  'max-w-[80%] whitespace-pre-wrap',
-                  message.role === 'user'
-                    ? 'chat-bubble-user'
-                    : 'chat-bubble-assistant'
-                )}
-              >
+              className={cn(
+                'max-w-[80%] whitespace-pre-wrap',
+                message.role === 'user' ?
+                'chat-bubble-user' :
+                'chat-bubble-assistant'
+              )}>
+              
                 {message.content}
               </div>
 
-              {message.role === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
+              {message.role === 'user' &&
+            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center shrink-0">
                   <User className="w-4 h-4 text-primary-foreground" />
                 </div>
-              )}
+            }
             </motion.div>
-          ))}
+          )}
 
           {/* Show pending user message immediately */}
-          {pendingUserMessage && (
-            <motion.div
-              key="pending-user-message"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="flex gap-3 justify-end"
-            >
+          {pendingUserMessage &&
+          <motion.div
+            key="pending-user-message"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="flex gap-3 justify-end">
+            
               <div className="max-w-[80%] whitespace-pre-wrap chat-bubble-user">
                 {pendingUserMessage}
               </div>
@@ -220,16 +220,16 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
                 <User className="w-4 h-4 text-primary-foreground" />
               </div>
             </motion.div>
-          )}
+          }
         </AnimatePresence>
 
         {/* AI Typing indicator - shows AFTER user message */}
-        {isLoading && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex gap-3"
-          >
+        {isLoading &&
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex gap-3">
+          
             <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
               <Bot className="w-4 h-4 text-secondary-foreground" />
             </div>
@@ -238,7 +238,7 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
               <span>Mengetik...</span>
             </div>
           </motion.div>
-        )}
+        }
 
         <div ref={messagesEndRef} />
       </div>
@@ -247,25 +247,25 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
       <form onSubmit={handleSubmit} className="p-4 border-t border-border">
         <div className="flex gap-2">
           {/* Voice Input Button */}
-          {sttSupported && (
-            <Button
-              type="button"
-              variant={isListening ? "default" : "outline"}
-              size="icon"
-              className={cn(
-                "w-12 h-12 rounded-xl shrink-0 transition-all",
-                isListening && "bg-destructive hover:bg-destructive/90 animate-pulse"
-              )}
-              onClick={toggleVoiceInput}
-              disabled={isLoading}
-            >
-              {isListening ? (
-                <MicOff className="w-5 h-5" />
-              ) : (
-                <Mic className="w-5 h-5" />
-              )}
+          {sttSupported &&
+          <Button
+            type="button"
+            variant={isListening ? "default" : "outline"}
+            size="icon"
+            className={cn(
+              "w-12 h-12 rounded-xl shrink-0 transition-all",
+              isListening && "bg-destructive hover:bg-destructive/90 animate-pulse"
+            )}
+            onClick={toggleVoiceInput}
+            disabled={isLoading}>
+            
+              {isListening ?
+            <MicOff className="w-5 h-5" /> :
+
+            <Mic className="w-5 h-5" />
+            }
             </Button>
-          )}
+          }
           
           <Input
             ref={inputRef}
@@ -276,29 +276,29 @@ export function AIChat({ messages, onSendMessage, isLoading, tableNumber }: AICh
               "flex-1 h-12 rounded-xl transition-all",
               isListening && "border-destructive ring-2 ring-destructive/20"
             )}
-            disabled={isLoading || isListening}
-          />
+            disabled={isLoading || isListening} />
+          
           <Button
             type="submit"
             size="icon"
             className="w-12 h-12 rounded-xl"
-            disabled={!input.trim() || isLoading}
-          >
+            disabled={!input.trim() || isLoading}>
+            
             <Send className="w-5 h-5" />
           </Button>
         </div>
         
         {/* Voice input hint */}
-        {isListening && (
-          <motion.p
-            initial={{ opacity: 0, y: -10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-xs text-center text-destructive mt-2"
-          >
+        {isListening &&
+        <motion.p
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-xs text-center text-destructive mt-2">
+          
             🎤 Bicara sekarang... Tekan tombol mikrofon lagi untuk berhenti
           </motion.p>
-        )}
+        }
       </form>
-    </div>
-  );
+    </div>);
+
 }
