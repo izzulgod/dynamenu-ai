@@ -196,6 +196,7 @@ export default function MenuPage() {
                     />
                   );
                 })}
+              </motion.div>
           }
 
             {menuItems.length === 0 && !menuLoading &&
@@ -204,7 +205,6 @@ export default function MenuPage() {
                 <p className="text-muted-foreground">Tidak ada menu di kategori ini</p>
               </div>
           }
-          </> :
           </> :
         activeTab === 'promo' ?
         <PromoTab /> :
