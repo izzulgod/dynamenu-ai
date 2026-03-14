@@ -183,10 +183,19 @@ export default function MenuPage() {
             animate={{ opacity: 1 }}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             
-                {menuItems.map((item, index) =>
-            <MenuItemCard key={item.id} item={item} index={index} />
-            )}
-              </motion.div>
+                {menuItems.map((item, index) => {
+                  const promoPrice = getPromoPrice(item.id, item.price, promotions);
+                  const discountBadge = getDiscountBadge(item.id, item.price, promotions);
+                  return (
+                    <MenuItemCard
+                      key={item.id}
+                      item={item}
+                      index={index}
+                      promoPrice={promoPrice}
+                      discountBadge={discountBadge}
+                    />
+                  );
+                })}
           }
 
             {menuItems.length === 0 && !menuLoading &&
