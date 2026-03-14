@@ -227,6 +227,7 @@ export default function MenuPage() {
         <div className="container flex items-center justify-around py-2">
           {[
           { key: 'menu' as const, icon: Grid, label: 'Menu' },
+          { key: 'promo' as const, icon: Percent, label: 'Promo' },
           { key: 'orders' as const, icon: ClipboardList, label: 'Pesanan' },
           { key: 'chat' as const, icon: MessageCircle, label: 'Chat AI' }].
           map(({ key, icon: Icon, label }) =>
