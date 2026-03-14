@@ -26,7 +26,8 @@ export default function MenuPage() {
   const tableNumber = searchParams.get('table') ? parseInt(searchParams.get('table')!) : null;
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<'menu' | 'chat' | 'orders'>('menu');
+  const [activeTab, setActiveTab] = useState<'menu' | 'chat' | 'orders' | 'promo'>('menu');
+  const { data: promotions } = useActivePromotions();
 
   const sessionId = getSessionId();
 
