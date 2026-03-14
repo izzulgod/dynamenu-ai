@@ -1,7 +1,7 @@
 import { MenuItem } from '@/types/restaurant';
 import { useCart } from '@/hooks/useCart';
 import { motion } from 'framer-motion';
-import { Plus, Clock, Star } from 'lucide-react';
+import { Plus, Clock, Star, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -9,13 +9,14 @@ import { toast } from 'sonner';
 interface MenuItemCardProps {
   item: MenuItem;
   index?: number;
+  promoPrice?: number | null;
+  discountBadge?: string | null;
 }
 
 // Food placeholder images based on keywords
 const getFoodPlaceholder = (name: string): string => {
   const lowerName = name.toLowerCase();
   
-  // Map common Indonesian food keywords to Unsplash food images
   if (lowerName.includes('nasi goreng') || lowerName.includes('fried rice')) {
     return 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop';
   }
@@ -56,15 +57,14 @@ const getFoodPlaceholder = (name: string): string => {
     return 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&h=300&fit=crop';
   }
   
-  // Default food image
   return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop';
 };
 
-export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
+export function MenuItemCard({ item, index = 0, promoPrice, discountBadge }: MenuItemCardProps) {
   const { addItem } = useCart();
 
   const handleAddToCart = () => {
-    addItem(item);
+    addItem(item, 1, undefined, promoPrice);
     toast.success(`${item.name} ditambahkan ke keranjang!`);
   };
 
@@ -75,6 +75,8 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
       minimumFractionDigits: 0,
     }).format(price);
   };
+
+  const hasPromo = promoPrice != null && promoPrice < item.price;
 
   return (
     <motion.div
@@ -90,7 +92,6 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
           alt={item.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
-            // Fallback to placeholder if image fails to load
             const target = e.target as HTMLImageElement;
             target.src = getFoodPlaceholder(item.name);
           }}
@@ -98,7 +99,13 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
         
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-          {item.is_recommended && (
+          {hasPromo && discountBadge && (
+            <Badge className="bg-destructive text-destructive-foreground text-xs gap-1">
+              <Flame className="w-3 h-3" />
+              {discountBadge}
+            </Badge>
+          )}
+          {item.is_recommended && !hasPromo && (
             <Badge className="bg-primary text-primary-foreground text-xs gap-1">
               <Star className="w-3 h-3" />
               Favorit
@@ -146,9 +153,22 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
 
         {/* Price and Time */}
         <div className="flex items-center justify-between pt-2">
-          <span className="font-bold text-primary text-lg">
-            {formatPrice(item.price)}
-          </span>
+          <div className="flex flex-col">
+            {hasPromo ? (
+              <>
+                <span className="text-xs text-muted-foreground line-through">
+                  {formatPrice(item.price)}
+                </span>
+                <span className="font-bold text-destructive text-lg">
+                  {formatPrice(promoPrice!)}
+                </span>
+              </>
+            ) : (
+              <span className="font-bold text-primary text-lg">
+                {formatPrice(item.price)}
+              </span>
+            )}
+          </div>
           <div className="flex items-center gap-1 text-muted-foreground text-sm">
             <Clock className="w-3.5 h-3.5" />
             <span>{item.preparation_time} min</span>
