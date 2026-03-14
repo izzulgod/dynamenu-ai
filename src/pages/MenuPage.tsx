@@ -1,15 +1,17 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList } from 'lucide-react';
+import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList, Percent } from 'lucide-react';
 import { useTable } from '@/hooks/useTable';
 import { useCategories, useMenuItems } from '@/hooks/useMenu';
 import { useCart } from '@/hooks/useCart';
 import { useChat } from '@/hooks/useChat';
 import { useCreateOrder } from '@/hooks/useOrders';
+import { useActivePromotions, getPromoPrice, getDiscountBadge } from '@/hooks/usePromotions';
 import { getSessionId } from '@/lib/session';
 import { MenuItemCard } from '@/components/menu/MenuItemCard';
 import { CategoryTabs } from '@/components/menu/CategoryTabs';
+import { PromoTab } from '@/components/menu/PromoTab';
 import { CartSheet } from '@/components/cart/CartSheet';
 import { AIChat } from '@/components/chat/AIChat';
 import { OrderHistory } from '@/components/orders/OrderHistory';
