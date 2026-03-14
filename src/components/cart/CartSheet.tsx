@@ -34,12 +34,17 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
       await createOrder.mutateAsync({
         tableId,
         sessionId,
-        items: items.map((item) => ({
-          menuItemId: item.menuItem.id,
-          quantity: item.quantity,
-          unitPrice: item.menuItem.price,
-          notes: item.notes
-        })),
+        items: items.map((item) => {
+          const effectivePrice = (item.promoPrice != null && item.promoPrice < item.menuItem.price)
+            ? item.promoPrice
+            : item.menuItem.price;
+          return {
+            menuItemId: item.menuItem.id,
+            quantity: item.quantity,
+            unitPrice: effectivePrice,
+            notes: item.notes
+          };
+        }),
         totalAmount: getTotalAmount()
       });
 
