@@ -464,6 +464,9 @@ ${JSON.stringify(menuContext, null, 2)}
 PESANAN TERBARU CUSTOMER INI:
 ${JSON.stringify(orderContext, null, 2)}
 
+PROMO AKTIF SAAT INI:
+${promoContext.length > 0 ? JSON.stringify(promoContext, null, 2) : 'Tidak ada promo aktif saat ini'}
+
 KERANJANG SAAT INI:
 ${cartContext.length > 0 ? JSON.stringify(cartContext, null, 2) : 'Kosong'}
 
