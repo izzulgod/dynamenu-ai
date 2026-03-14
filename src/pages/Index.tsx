@@ -181,7 +181,7 @@ const Index = () => {
       <footer className="container py-8 border-t border-border text-center flex flex-col items-center gap-2">
         <img src={logoImg} alt="DynamenuAI" className="w-8 h-8 rounded-lg ring-1 ring-primary/15 p-0.5 bg-card" />
         <p className="text-sm text-muted-foreground">
-          DynamenuAI - AI-Powered Restaurant System 
+          DynamenuAI - AI Powered Restaurant System 
         </p>
       </footer>
 
