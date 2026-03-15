@@ -15,7 +15,7 @@ interface PaymentDialogProps {
   onSuccess: () => void;
 }
 
-type PaymentStep = 'select' | 'cash-waiting' | 'qris-waiting' | 'confirmed';
+type PaymentStep = 'select' | 'confirmed';
 
 export function PaymentDialog({
   open,
