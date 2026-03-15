@@ -311,9 +311,9 @@ export function OrderHistory() {
                     </span>
                   </div>
                   <div className="flex flex-wrap gap-2 mt-2">
-                    {/* Order Status Badge */}
+                    {/* Order Status Badge - icon only */}
                     <Badge variant="outline" className={status.color}>
-                      {status.label}
+                      <StatusIcon className="w-3 h-3" />
                     </Badge>
                     
                     {/* Payment Method Badge */}
