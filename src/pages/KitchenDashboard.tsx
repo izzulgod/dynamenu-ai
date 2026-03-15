@@ -580,8 +580,8 @@ export default function KitchenDashboard() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence mode="popLayout">
-                  {readyOrders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
+                  {readyOrders.map((group) => (
+                    <OrderCard key={group.tableKey} group={group} />
                   ))}
                 </AnimatePresence>
               </div>
