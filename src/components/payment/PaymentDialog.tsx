@@ -88,21 +88,18 @@ export function PaymentDialog({
     setIsProcessing(true);
     
     try {
-      // Set payment method to database with pending status
       await updatePayment.mutateAsync({
         orderId,
         paymentMethod: method,
         paymentStatus: 'pending',
       });
 
-      if (method === 'qris') {
-        setStep('qris-waiting');
-        setQrisCountdown(60);
-      } else {
-        // For cash, just transition to waiting step - no success animation
-        setStep('cash-waiting');
-        toast.info('Pesanan terkirim. Menunggu konfirmasi waiter.');
-      }
+      setStep('confirmed');
+      toast.success('Metode pembayaran dipilih!');
+      setTimeout(() => {
+        onSuccess();
+        onOpenChange(false);
+      }, 1500);
     } catch (error) {
       console.error('Payment error:', error);
       toast.error('Gagal memproses pembayaran');
