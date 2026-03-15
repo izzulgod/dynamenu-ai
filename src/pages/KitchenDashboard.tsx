@@ -109,43 +109,52 @@ export default function KitchenDashboard() {
     return allOrders.filter((order) => status.includes(order.status));
   };
 
-  // Group orders by table - combine all items from same table into one card
-  const groupOrdersByTable = (orders: OrderWithItems[]): OrderWithItems[] => {
-    const tableGroups = new Map<string, OrderWithItems>();
+  // Grouped order type for kitchen display
+  interface GroupedTableOrder {
+    tableKey: string;
+    tableNumber: number | null;
+    subOrders: OrderWithItems[];
+    allItems: OrderWithItems['order_items'];
+    totalAmount: number;
+    earliestTime: string;
+    allNotes: string[];
+    // Derived: the "worst" status for display (pending < confirmed < preparing < ready)
+    displayStatus: OrderWithItems['status'];
+  }
+
+  const statusPriority: Record<string, number> = {
+    pending: 0, confirmed: 1, preparing: 2, ready: 3, delivered: 4, cancelled: 5,
+  };
+
+  const groupOrdersByTable = (orders: OrderWithItems[]): GroupedTableOrder[] => {
+    const tableGroups = new Map<string, GroupedTableOrder>();
     
     orders.forEach((order) => {
-      const tableKey = order.table_id || order.id; // Use order id if no table
+      const tableKey = order.table_id || order.id;
       
       if (tableGroups.has(tableKey)) {
-        // Merge items into existing group
         const existing = tableGroups.get(tableKey)!;
-        existing.order_items = [...existing.order_items, ...order.order_items];
-        existing.total_amount = (existing.total_amount || 0) + (order.total_amount || 0);
-        // Keep the earliest created_at
-        if (new Date(order.created_at) < new Date(existing.created_at)) {
-          existing.created_at = order.created_at;
+        existing.subOrders.push(order);
+        existing.allItems = [...existing.allItems, ...order.order_items];
+        existing.totalAmount += (order.total_amount || 0);
+        if (new Date(order.created_at) < new Date(existing.earliestTime)) {
+          existing.earliestTime = order.created_at;
         }
-        // Collect notes
-        if (order.notes) {
-          existing.notes = existing.notes 
-            ? `${existing.notes}\n${order.notes}` 
-            : order.notes;
+        if (order.notes) existing.allNotes.push(order.notes);
+        // Display status = the "lowest priority" (earliest in flow) among sub-orders
+        if (statusPriority[order.status] < statusPriority[existing.displayStatus]) {
+          existing.displayStatus = order.status;
         }
-        // Use first payment method found
-        if (!existing.payment_method && order.payment_method) {
-          existing.payment_method = order.payment_method;
-          existing.payment_status = order.payment_status;
-        }
-        // Store all order IDs for actions (use first one for main actions)
-        (existing as any)._mergedOrderIds = [
-          ...((existing as any)._mergedOrderIds || [existing.id]),
-          order.id
-        ];
       } else {
-        // Create new group with clone of order
         tableGroups.set(tableKey, {
-          ...order,
-          order_items: [...order.order_items],
+          tableKey,
+          tableNumber: order.tables?.table_number ?? null,
+          subOrders: [order],
+          allItems: [...order.order_items],
+          totalAmount: order.total_amount || 0,
+          earliestTime: order.created_at,
+          allNotes: order.notes ? [order.notes] : [],
+          displayStatus: order.status,
         });
       }
     });
@@ -246,13 +255,30 @@ export default function KitchenDashboard() {
     );
   }
 
-  const OrderCard = ({ order }: { order: OrderWithItems }) => {
-    const status = statusConfig[order.status];
+  const OrderCard = ({ group }: { group: GroupedTableOrder }) => {
+    const status = statusConfig[group.displayStatus];
     const StatusIcon = status.icon;
-    const paymentMethod = order.payment_method ? paymentMethodConfig[order.payment_method] : null;
-    const PaymentIcon = paymentMethod?.icon || CreditCard;
-    const isPendingCashPayment = order.payment_method === 'cash' && order.payment_status === 'pending';
-    const isOrderPending = pendingOrderActions.has(order.id);
+
+    const hasPendingCash = group.subOrders.some(o => o.payment_method === 'cash' && o.payment_status === 'pending');
+    
+    const handleGroupStatusUpdate = async (newStatus: OrderWithItems['status']) => {
+      for (const sub of group.subOrders) {
+        if (sub.status !== newStatus) {
+          await handleStatusUpdate(sub.id, newStatus);
+        }
+      }
+    };
+
+    const handleGroupCancel = async () => {
+      for (const sub of group.subOrders) {
+        await handleKitchenCancelOrder(sub.id);
+      }
+    };
+
+    const allPaid = group.subOrders.every(o => o.payment_status === 'paid');
+    const compositeStatus = group.displayStatus;
+    const isAnyPending = group.subOrders.some(o => pendingOrderActions.has(o.id));
+
     return (
       <motion.div
         layout
@@ -260,205 +286,165 @@ export default function KitchenDashboard() {
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
       >
-        <Card className={cn("overflow-hidden", isPendingCashPayment && "ring-2 ring-amber-400")}>
+        <Card className={cn("overflow-hidden", hasPendingCash && "ring-2 ring-amber-400")}>
           <CardHeader className={cn('py-3', status.color)}>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <StatusIcon className="w-4 h-4" />
                 <CardTitle className="text-base">
-                  Meja {order.tables?.table_number || '-'}
+                  Meja {group.tableNumber || '-'}
                 </CardTitle>
+                {group.subOrders.length > 1 && (
+                  <Badge variant="secondary" className="text-xs">
+                    {group.subOrders.length} pesanan
+                  </Badge>
+                )}
               </div>
               <div className="text-sm font-normal">
-                {formatTime(order.created_at)}
+                {formatTime(group.earliestTime)}
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-4 space-y-4">
-            {/* Payment Method & Status Badges */}
-            <div className="flex flex-wrap gap-2">
-              {paymentMethod && (
-                <Badge variant="outline" className={paymentMethod.color}>
-                  <PaymentIcon className="w-3 h-3 mr-1" />
-                  {paymentMethod.label}
-                </Badge>
-              )}
-              {order.payment_status === 'pending' && (
-                <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                  Belum Bayar
-                </Badge>
-              )}
-              {order.payment_status === 'paid' && (
-                <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
-                  <CheckCircle className="w-3 h-3 mr-1" />
-                  Lunas
-                </Badge>
-              )}
-            </div>
-
-            {/* Pending Cash Payment Alert */}
-            {isPendingCashPayment && (
-              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-                <div className="flex items-center gap-2 text-amber-700 font-medium">
-                  <Banknote className="w-4 h-4" />
-                  Menunggu Pembayaran Tunai
-                </div>
-                <p className="text-amber-600 text-xs mt-1">
-                  Konfirmasi setelah menerima pembayaran dari pelanggan
-                </p>
-              </div>
-            )}
-
-            {/* Order Items */}
+            {/* Payment Info Per Sub-Order */}
             <div className="space-y-2">
-              {order.order_items.map((item) => (
-                <div key={item.id} className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <span className="font-medium">
-                      {item.quantity}x {item.menu_items?.name || 'Item'}
-                    </span>
-                    {item.notes && (
-                      <p className="text-xs text-muted-foreground">{item.notes}</p>
+              {group.subOrders.map((sub) => {
+                const pm = sub.payment_method ? paymentMethodConfig[sub.payment_method] : null;
+                const PmIcon = pm?.icon || CreditCard;
+                const isPendingCash = sub.payment_method === 'cash' && sub.payment_status === 'pending';
+                
+                return (
+                  <div key={sub.id} className="rounded-lg border p-2 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground font-medium">
+                        #{sub.id.slice(-6).toUpperCase()}
+                      </span>
+                      <div className="flex gap-1.5">
+                        {pm && (
+                          <Badge variant="outline" className={paymentMethodConfig[sub.payment_method!].color}>
+                            <PmIcon className="w-3 h-3 mr-1" />
+                            {pm.label}
+                          </Badge>
+                        )}
+                        {sub.payment_status === 'paid' ? (
+                          <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                            <CheckCircle className="w-3 h-3 mr-1" />
+                            Lunas
+                          </Badge>
+                        ) : (
+                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                            Belum Bayar
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      {sub.order_items.map((item) => (
+                        <div key={item.id} className="flex justify-between items-start text-sm">
+                          <span className="font-medium">
+                            {item.quantity}x {item.menu_items?.name || 'Item'}
+                          </span>
+                          {item.notes && (
+                            <p className="text-xs text-muted-foreground">{item.notes}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+
+                    <div className="flex justify-between text-xs pt-1 border-t">
+                      <span className="text-muted-foreground">Subtotal</span>
+                      <span className="font-semibold">{formatPrice(sub.total_amount)}</span>
+                    </div>
+
+                    {isPendingCash && (
+                      <Button
+                        size="sm"
+                        className="w-full bg-amber-500 hover:bg-amber-600 text-xs"
+                        onClick={() => handleConfirmCashPayment(sub.id)}
+                        disabled={pendingOrderActions.has(sub.id)}
+                      >
+                        {pendingOrderActions.has(sub.id) ? (
+                          <Loader2 className="w-3 h-3 animate-spin mr-1" />
+                        ) : (
+                          <Banknote className="w-3 h-3 mr-1" />
+                        )}
+                        Terima Tunai
+                      </Button>
                     )}
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
 
-            {/* Notes */}
-            {order.notes && (
+            {group.allNotes.length > 0 && (
               <div className="text-sm text-muted-foreground bg-muted p-2 rounded">
-                📝 {order.notes}
+                📝 {group.allNotes.join(' | ')}
               </div>
             )}
 
-            {/* Total */}
             <div className="flex justify-between items-center pt-2 border-t">
-              <span className="text-sm text-muted-foreground">Total</span>
+              <span className="text-sm text-muted-foreground">Total Keseluruhan</span>
               <span className="font-bold text-primary">
-                {formatPrice(order.total_amount)}
+                {formatPrice(group.totalAmount)}
               </span>
             </div>
 
-            {/* Action Buttons */}
             <div className="flex flex-col gap-2">
-              {/* Confirm Cash Payment Button */}
-              {isPendingCashPayment && (
-                <Button
-                  size="sm"
-                  className="w-full bg-amber-500 hover:bg-amber-600"
-                  onClick={() => handleConfirmCashPayment(order.id)}
-                  disabled={isOrderPending}
-                >
-                  {isOrderPending ? (
-                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                  ) : (
-                    <Banknote className="w-4 h-4 mr-2" />
-                  )}
-                  Terima Pembayaran Tunai
-                </Button>
-              )}
-
-              {/* Order Status Buttons */}
               <div className="flex gap-2">
-                {order.status === 'pending' && order.payment_status === 'paid' && (
-                  <Button
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleStatusUpdate(order.id, 'confirmed')}
-                    disabled={isOrderPending}
-                  >
-                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {compositeStatus === 'pending' && allPaid && (
+                  <Button size="sm" className="flex-1" onClick={() => handleGroupStatusUpdate('confirmed')} disabled={isAnyPending}>
+                    {isAnyPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Konfirmasi
                   </Button>
                 )}
-                {order.status === 'confirmed' && (
-                  <Button
-                    size="sm"
-                    className="flex-1"
-                    onClick={() => handleStatusUpdate(order.id, 'preparing')}
-                    disabled={isOrderPending}
-                  >
-                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {compositeStatus === 'confirmed' && (
+                  <Button size="sm" className="flex-1" onClick={() => handleGroupStatusUpdate('preparing')} disabled={isAnyPending}>
+                    {isAnyPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Mulai Masak
                   </Button>
                 )}
-                {order.status === 'preparing' && (
-                  <Button
-                    size="sm"
-                    className="flex-1 bg-sage hover:bg-sage/90"
-                    onClick={() => handleStatusUpdate(order.id, 'ready')}
-                    disabled={isOrderPending}
-                  >
-                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {compositeStatus === 'preparing' && (
+                  <Button size="sm" className="flex-1 bg-sage hover:bg-sage/90" onClick={() => handleGroupStatusUpdate('ready')} disabled={isAnyPending}>
+                    {isAnyPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Siap Antar
                   </Button>
                 )}
-                {order.status === 'ready' && (
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => handleStatusUpdate(order.id, 'delivered')}
-                    disabled={isOrderPending}
-                  >
-                    {isOrderPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                {compositeStatus === 'ready' && (
+                  <Button size="sm" variant="outline" className="flex-1" onClick={() => handleGroupStatusUpdate('delivered')} disabled={isAnyPending}>
+                    {isAnyPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
                     Sudah Diantar
                   </Button>
                 )}
-                   {/* Cancel/Close Order Button */}
-                   <AlertDialog>
-                     <AlertDialogTrigger asChild>
-                       <Button
-                         size="sm"
-                         variant="outline"
-                         className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                       >
-                         <XCircle className="w-4 h-4" />
-                       </Button>
-                     </AlertDialogTrigger>
-                     <AlertDialogContent>
-                       <AlertDialogHeader>
-                         <AlertDialogTitle className="flex items-center gap-2">
-                           <AlertTriangle className="w-5 h-5 text-destructive" />
-                           Batalkan Pesanan?
-                         </AlertDialogTitle>
-                         <AlertDialogDescription className="space-y-3">
-                           <p>
-                             Pesanan Meja {order.tables?.table_number || '-'} akan dibatalkan. 
-                             Pelanggan akan menerima notifikasi pembatalan.
-                           </p>
-                           <div className="space-y-2">
-                             <label className="text-sm font-medium text-foreground">
-                               Alasan pembatalan (opsional):
-                             </label>
-                             <Textarea
-                               placeholder="Contoh: Stok habis, pesanan duplikat, dll"
-                               value={cancelReason}
-                               onChange={(e) => setCancelReason(e.target.value)}
-                               className="resize-none"
-                               rows={2}
-                             />
-                           </div>
-                         </AlertDialogDescription>
-                       </AlertDialogHeader>
-                       <AlertDialogFooter>
-                         <AlertDialogCancel onClick={() => setCancelReason('')}>
-                           Batal
-                         </AlertDialogCancel>
-                         <AlertDialogAction
-                           onClick={() => handleKitchenCancelOrder(order.id)}
-                           className="bg-destructive hover:bg-destructive/90"
-                           disabled={kitchenCancel.isPending}
-                         >
-                           {kitchenCancel.isPending ? (
-                             <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                           ) : null}
-                           Ya, Batalkan
-                         </AlertDialogAction>
-                       </AlertDialogFooter>
-                     </AlertDialogContent>
-                   </AlertDialog>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button size="sm" variant="outline" className="text-destructive hover:text-destructive hover:bg-destructive/10">
+                      <XCircle className="w-4 h-4" />
+                    </Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle className="flex items-center gap-2">
+                        <AlertTriangle className="w-5 h-5 text-destructive" />
+                        Batalkan Pesanan?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription className="space-y-3">
+                        <p>Semua pesanan Meja {group.tableNumber || '-'} ({group.subOrders.length} pesanan) akan dibatalkan.</p>
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium text-foreground">Alasan pembatalan (opsional):</label>
+                          <Textarea placeholder="Contoh: Stok habis, dll" value={cancelReason} onChange={(e) => setCancelReason(e.target.value)} className="resize-none" rows={2} />
+                        </div>
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel onClick={() => setCancelReason('')}>Batal</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleGroupCancel()} className="bg-destructive hover:bg-destructive/90" disabled={kitchenCancel.isPending}>
+                        {kitchenCancel.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+                        Ya, Batalkan
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </div>
           </CardContent>
@@ -560,8 +546,8 @@ export default function KitchenDashboard() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence mode="popLayout">
-                  {pendingOrders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
+                  {pendingOrders.map((group) => (
+                    <OrderCard key={group.tableKey} group={group} />
                   ))}
                 </AnimatePresence>
               </div>
@@ -577,8 +563,8 @@ export default function KitchenDashboard() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence mode="popLayout">
-                  {preparingOrders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
+                  {preparingOrders.map((group) => (
+                    <OrderCard key={group.tableKey} group={group} />
                   ))}
                 </AnimatePresence>
               </div>
@@ -594,8 +580,8 @@ export default function KitchenDashboard() {
             ) : (
               <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                 <AnimatePresence mode="popLayout">
-                  {readyOrders.map((order) => (
-                    <OrderCard key={order.id} order={order} />
+                  {readyOrders.map((group) => (
+                    <OrderCard key={group.tableKey} group={group} />
                   ))}
                 </AnimatePresence>
               </div>
