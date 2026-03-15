@@ -109,43 +109,52 @@ export default function KitchenDashboard() {
     return allOrders.filter((order) => status.includes(order.status));
   };
 
-  // Group orders by table - combine all items from same table into one card
-  const groupOrdersByTable = (orders: OrderWithItems[]): OrderWithItems[] => {
-    const tableGroups = new Map<string, OrderWithItems>();
+  // Grouped order type for kitchen display
+  interface GroupedTableOrder {
+    tableKey: string;
+    tableNumber: number | null;
+    subOrders: OrderWithItems[];
+    allItems: OrderWithItems['order_items'];
+    totalAmount: number;
+    earliestTime: string;
+    allNotes: string[];
+    // Derived: the "worst" status for display (pending < confirmed < preparing < ready)
+    displayStatus: OrderWithItems['status'];
+  }
+
+  const statusPriority: Record<string, number> = {
+    pending: 0, confirmed: 1, preparing: 2, ready: 3, delivered: 4, cancelled: 5,
+  };
+
+  const groupOrdersByTable = (orders: OrderWithItems[]): GroupedTableOrder[] => {
+    const tableGroups = new Map<string, GroupedTableOrder>();
     
     orders.forEach((order) => {
-      const tableKey = order.table_id || order.id; // Use order id if no table
+      const tableKey = order.table_id || order.id;
       
       if (tableGroups.has(tableKey)) {
-        // Merge items into existing group
         const existing = tableGroups.get(tableKey)!;
-        existing.order_items = [...existing.order_items, ...order.order_items];
-        existing.total_amount = (existing.total_amount || 0) + (order.total_amount || 0);
-        // Keep the earliest created_at
-        if (new Date(order.created_at) < new Date(existing.created_at)) {
-          existing.created_at = order.created_at;
+        existing.subOrders.push(order);
+        existing.allItems = [...existing.allItems, ...order.order_items];
+        existing.totalAmount += (order.total_amount || 0);
+        if (new Date(order.created_at) < new Date(existing.earliestTime)) {
+          existing.earliestTime = order.created_at;
         }
-        // Collect notes
-        if (order.notes) {
-          existing.notes = existing.notes 
-            ? `${existing.notes}\n${order.notes}` 
-            : order.notes;
+        if (order.notes) existing.allNotes.push(order.notes);
+        // Display status = the "lowest priority" (earliest in flow) among sub-orders
+        if (statusPriority[order.status] < statusPriority[existing.displayStatus]) {
+          existing.displayStatus = order.status;
         }
-        // Use first payment method found
-        if (!existing.payment_method && order.payment_method) {
-          existing.payment_method = order.payment_method;
-          existing.payment_status = order.payment_status;
-        }
-        // Store all order IDs for actions (use first one for main actions)
-        (existing as any)._mergedOrderIds = [
-          ...((existing as any)._mergedOrderIds || [existing.id]),
-          order.id
-        ];
       } else {
-        // Create new group with clone of order
         tableGroups.set(tableKey, {
-          ...order,
-          order_items: [...order.order_items],
+          tableKey,
+          tableNumber: order.tables?.table_number ?? null,
+          subOrders: [order],
+          allItems: [...order.order_items],
+          totalAmount: order.total_amount || 0,
+          earliestTime: order.created_at,
+          allNotes: order.notes ? [order.notes] : [],
+          displayStatus: order.status,
         });
       }
     });
