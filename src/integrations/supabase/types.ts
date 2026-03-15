@@ -259,6 +259,87 @@ export type Database = {
           },
         ]
       }
+      promotion_items: {
+        Row: {
+          created_at: string | null
+          id: string
+          menu_item_id: string
+          promo_price: number | null
+          promotion_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          menu_item_id: string
+          promo_price?: number | null
+          promotion_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          menu_item_id?: string
+          promo_price?: number | null
+          promotion_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "promotion_items_menu_item_id_fkey"
+            columns: ["menu_item_id"]
+            isOneToOne: false
+            referencedRelation: "menu_items"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "promotion_items_promotion_id_fkey"
+            columns: ["promotion_id"]
+            isOneToOne: false
+            referencedRelation: "promotions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      promotions: {
+        Row: {
+          banner_image_url: string | null
+          created_at: string | null
+          description: string | null
+          discount_type: Database["public"]["Enums"]["discount_type"]
+          discount_value: number
+          end_date: string | null
+          id: string
+          is_active: boolean
+          name: string
+          start_date: string
+          updated_at: string | null
+        }
+        Insert: {
+          banner_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["discount_type"]
+          discount_value?: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          start_date?: string
+          updated_at?: string | null
+        }
+        Update: {
+          banner_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          discount_type?: Database["public"]["Enums"]["discount_type"]
+          discount_value?: number
+          end_date?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          start_date?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       staff_profiles: {
         Row: {
           created_at: string | null
@@ -331,6 +412,7 @@ export type Database = {
       is_active_staff: { Args: { user_uuid: string }; Returns: boolean }
     }
     Enums: {
+      discount_type: "percent" | "fixed"
       order_status:
         | "pending"
         | "confirmed"
@@ -468,6 +550,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      discount_type: ["percent", "fixed"],
       order_status: [
         "pending",
         "confirmed",
