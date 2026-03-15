@@ -53,20 +53,8 @@ export function PaymentDialog({
       }
       
       // If payment is already confirmed, show confirmation step
-      if (currentOrder.payment_status === 'paid') {
+      if (currentOrder.payment_status === 'paid' || currentOrder.payment_method) {
         setStep('confirmed');
-        return;
-      }
-      
-      // If payment method is already selected, show the appropriate waiting step
-      if (currentOrder.payment_method === 'cash' && currentOrder.payment_status === 'pending') {
-        setStep('cash-waiting');
-        return;
-      }
-      
-      if (currentOrder.payment_method === 'qris' && currentOrder.payment_status === 'pending') {
-        setStep('qris-waiting');
-        setQrisCountdown(60);
         return;
       }
     }
