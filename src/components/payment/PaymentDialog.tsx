@@ -64,17 +64,6 @@ export function PaymentDialog({
   }, [open, currentOrder]);
 
   
-  // Listen for payment confirmation from kitchen side (realtime update)
-  useEffect(() => {
-    if (currentOrder?.payment_status === 'paid' && step !== 'confirmed') {
-      setStep('confirmed');
-      toast.success('Pembayaran telah dikonfirmasi!');
-      setTimeout(() => {
-        onSuccess();
-        onOpenChange(false);
-      }, 2000);
-    }
-  }, [currentOrder?.payment_status, step, onSuccess, onOpenChange]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
