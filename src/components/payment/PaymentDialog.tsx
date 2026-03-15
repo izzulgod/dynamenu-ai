@@ -26,7 +26,7 @@ export function PaymentDialog({
 }: PaymentDialogProps) {
   const [step, setStep] = useState<PaymentStep>('select');
   const [isProcessing, setIsProcessing] = useState(false);
-  const [qrisCountdown, setQrisCountdown] = useState(60);
+  
   const updatePayment = useUpdatePayment();
   
   // Get order data to check existing payment method
