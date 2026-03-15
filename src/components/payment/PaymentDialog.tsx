@@ -63,23 +63,6 @@ export function PaymentDialog({
     setStep('select');
   }, [open, currentOrder]);
 
-  // QRIS countdown timer
-  useEffect(() => {
-    if (step !== 'qris-waiting') return;
-    
-    const timer = setInterval(() => {
-      setQrisCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          toast.error('Waktu pembayaran QRIS habis. Silakan coba lagi.');
-          return 60;
-        }
-        return prev - 1;
-      });
-    }, 1000);
-
-    return () => clearInterval(timer);
-  }, [step]);
   
   // Listen for payment confirmation from kitchen side (realtime update)
   useEffect(() => {
