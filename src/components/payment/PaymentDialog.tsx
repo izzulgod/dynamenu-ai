@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Banknote, QrCode, CheckCircle, Loader2, Clock, AlertCircle } from 'lucide-react';
+import { Banknote, QrCode, CheckCircle, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { useUpdatePayment, useSessionOrders } from '@/hooks/useOrders';
