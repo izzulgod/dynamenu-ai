@@ -33,6 +33,9 @@ import { MenuItem, MenuCategory } from '@/types/restaurant';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { TableManagement } from '@/components/admin/TableManagement';
+import { CategoryManagement } from '@/components/admin/CategoryManagement';
+import { FeedbackViewer } from '@/components/admin/FeedbackViewer';
 
 export default function AdminMenuPage() {
   const navigate = useNavigate();
