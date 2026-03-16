@@ -294,6 +294,8 @@ export function OrderHistory() {
           const hasOngoingPayment = order.payment_status === 'pending' && order.payment_method;
           const canCancel = order.status === 'pending' && order.payment_status !== 'paid';
            const canDelete = order.status === 'cancelled';
+          const isDelivered = order.status === 'delivered';
+          const hasRated = sessionFeedback.some((f) => f.order_id === order.id);
 
           return (
             <motion.div
