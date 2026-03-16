@@ -3,7 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChefHat, LogOut, Plus, Pencil, Trash2, Upload, X,
-  Loader2, ShieldAlert, Image as ImageIcon, ArrowLeft, Save
+  Loader2, ShieldAlert, Image as ImageIcon, ArrowLeft, Save,
+  LayoutGrid, Tag, Table2, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
