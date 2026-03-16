@@ -1,6 +1,5 @@
 import { MenuItem } from '@/types/restaurant';
 import { useCart } from '@/hooks/useCart';
-import { useMenuItemRatings } from '@/hooks/useRatings';
 import { motion } from 'framer-motion';
 import { Plus, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -16,6 +15,7 @@ interface MenuItemCardProps {
 const getFoodPlaceholder = (name: string): string => {
   const lowerName = name.toLowerCase();
   
+  // Map common Indonesian food keywords to Unsplash food images
   if (lowerName.includes('nasi goreng') || lowerName.includes('fried rice')) {
     return 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop';
   }
@@ -56,23 +56,12 @@ const getFoodPlaceholder = (name: string): string => {
     return 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&h=300&fit=crop';
   }
   
+  // Default food image
   return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop';
-};
-
-// Star color based on rating value
-const getStarColor = (rating: number): string => {
-  if (rating >= 4.5) return 'text-yellow-400 fill-yellow-400';
-  if (rating >= 3.5) return 'text-yellow-400 fill-yellow-400 opacity-85';
-  if (rating >= 2.5) return 'text-yellow-400 fill-yellow-400 opacity-65';
-  return 'text-yellow-400 fill-yellow-400 opacity-45';
 };
 
 export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
   const { addItem } = useCart();
-  const { data: ratings = [] } = useMenuItemRatings();
-  
-  const itemRating = ratings.find((r) => r.menu_item_id === item.id);
-  const isFavorite = itemRating && itemRating.avg_rating >= 4.5 && itemRating.total_reviews >= 2;
 
   const handleAddToCart = () => {
     addItem(item);
@@ -101,6 +90,7 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
           alt={item.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
+            // Fallback to placeholder if image fails to load
             const target = e.target as HTMLImageElement;
             target.src = getFoodPlaceholder(item.name);
           }}
@@ -108,9 +98,9 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
         
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-          {(isFavorite || item.is_recommended) && (
+          {item.is_recommended && (
             <Badge className="bg-primary text-primary-foreground text-xs gap-1">
-              <Star className="w-3 h-3 fill-current" />
+              <Star className="w-3 h-3" />
               Favorit
             </Badge>
           )}
@@ -154,23 +144,14 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
           </div>
         )}
 
-        {/* Price, Rating and Time */}
+        {/* Price and Time */}
         <div className="flex items-center justify-between pt-2">
           <span className="font-bold text-primary text-lg">
             {formatPrice(item.price)}
           </span>
-          <div className="flex items-center gap-2">
-            {/* Star Rating */}
-            {itemRating && (
-              <div className="flex items-center gap-0.5">
-                <Star className={`w-3.5 h-3.5 ${getStarColor(itemRating.avg_rating)}`} />
-                <span className="text-xs font-medium text-foreground">{itemRating.avg_rating}</span>
-              </div>
-            )}
-            <div className="flex items-center gap-1 text-muted-foreground text-sm">
-              <Clock className="w-3.5 h-3.5" />
-              <span>{item.preparation_time} min</span>
-            </div>
+          <div className="flex items-center gap-1 text-muted-foreground text-sm">
+            <Clock className="w-3.5 h-3.5" />
+            <span>{item.preparation_time} min</span>
           </div>
         </div>
       </div>

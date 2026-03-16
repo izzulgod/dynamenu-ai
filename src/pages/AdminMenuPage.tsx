@@ -3,8 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChefHat, LogOut, Plus, Pencil, Trash2, Upload, X,
-  Loader2, ShieldAlert, Image as ImageIcon, ArrowLeft, Save,
-  LayoutGrid, Tag, Table2, MessageSquare
+  Loader2, ShieldAlert, Image as ImageIcon, ArrowLeft, Save
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,22 +26,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCategories, useMenuItems } from '@/hooks/useMenu';
 import { MenuItem, MenuCategory } from '@/types/restaurant';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { TableManagement } from '@/components/admin/TableManagement';
-import { CategoryManagement } from '@/components/admin/CategoryManagement';
-import { FeedbackViewer } from '@/components/admin/FeedbackViewer';
 
 export default function AdminMenuPage() {
   const navigate = useNavigate();
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [staffName, setStaffName] = useState('');
-  const [adminTab, setAdminTab] = useState<'menu' | 'categories' | 'tables' | 'feedback'>('menu');
 
   const { data: categories = [], refetch: refetchCategories } = useCategories();
   const { data: menuItems = [], refetch: refetchItems } = useMenuItems();
@@ -318,19 +312,17 @@ export default function AdminMenuPage() {
                 <ChefHat className="w-5 h-5 text-primary" />
               </div>
               <div>
-                <h1 className="font-bold text-foreground">Panel Admin</h1>
+                <h1 className="font-bold text-foreground">Kelola Menu</h1>
                 <p className="text-xs text-muted-foreground">
-                  👋 {staffName}
+                  👋 {staffName} • {menuItems.length} item menu
                 </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {adminTab === 'menu' && (
-                <Button onClick={openCreateDialog} size="sm">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Tambah Menu
-                </Button>
-              )}
+              <Button onClick={openCreateDialog}>
+                <Plus className="w-4 h-4 mr-2" />
+                Tambah Menu
+              </Button>
               <Button variant="ghost" size="icon" onClick={handleLogout}>
                 <LogOut className="w-4 h-4" />
               </Button>
@@ -339,96 +331,67 @@ export default function AdminMenuPage() {
         </div>
       </header>
 
-      {/* Admin Tabs */}
-      <div className="container py-4">
-        <Tabs value={adminTab} onValueChange={(v) => setAdminTab(v as typeof adminTab)}>
-          <TabsList className="grid grid-cols-4 mb-4">
-            <TabsTrigger value="menu" className="gap-1 text-xs">
-              <LayoutGrid className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Menu</span>
-            </TabsTrigger>
-            <TabsTrigger value="categories" className="gap-1 text-xs">
-              <Tag className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Kategori</span>
-            </TabsTrigger>
-            <TabsTrigger value="tables" className="gap-1 text-xs">
-              <Table2 className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Meja</span>
-            </TabsTrigger>
-            <TabsTrigger value="feedback" className="gap-1 text-xs">
-              <MessageSquare className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Ulasan</span>
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="menu">
-            {/* Menu Grid */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-              <AnimatePresence mode="popLayout">
-                {menuItems.map((item) => (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0, scale: 0.9 }}
-                  >
-                    <Card className="overflow-hidden group">
-                      <div className="relative h-40 bg-muted">
-                        {item.image_url ? (
-                          <img src={item.image_url} alt={item.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
-                          <Button size="icon" variant="secondary" onClick={() => openEditDialog(item)}>
-                            <Pencil className="w-4 h-4" />
-                          </Button>
-                          <Button size="icon" variant="destructive" onClick={() => handleDelete(item)}>
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        {!item.is_available && (
-                          <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded">
-                            Tidak Tersedia
-                          </div>
-                        )}
+      {/* Menu Grid */}
+      <div className="container py-6">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          <AnimatePresence mode="popLayout">
+            {menuItems.map((item) => (
+              <motion.div
+                key={item.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+              >
+                <Card className="overflow-hidden group">
+                  {/* Image */}
+                  <div className="relative h-40 bg-muted">
+                    {item.image_url ? (
+                      <img
+                        src={item.image_url}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center">
+                        <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
                       </div>
-                      <CardContent className="p-4">
-                        <h3 className="font-semibold truncate">{item.name}</h3>
-                        <p className="text-sm text-muted-foreground truncate">
-                          {item.description || 'Tidak ada deskripsi'}
-                        </p>
-                        <p className="font-bold text-primary mt-2">{formatPrice(item.price)}</p>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </div>
+                    )}
+                    {/* Edit/Delete Overlay */}
+                    <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                      <Button size="icon" variant="secondary" onClick={() => openEditDialog(item)}>
+                        <Pencil className="w-4 h-4" />
+                      </Button>
+                      <Button size="icon" variant="destructive" onClick={() => handleDelete(item)}>
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                    {/* Status Badge */}
+                    {!item.is_available && (
+                      <div className="absolute top-2 left-2 bg-destructive text-destructive-foreground text-xs px-2 py-1 rounded">
+                        Tidak Tersedia
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-semibold truncate">{item.name}</h3>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {item.description || 'Tidak ada deskripsi'}
+                    </p>
+                    <p className="font-bold text-primary mt-2">{formatPrice(item.price)}</p>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
 
-            {menuItems.length === 0 && (
-              <div className="text-center py-12">
-                <ImageIcon className="w-16 h-16 mx-auto text-muted-foreground/40 mb-4" />
-                <p className="text-muted-foreground">Belum ada menu. Klik tombol "Tambah Menu" untuk mulai.</p>
-              </div>
-            )}
-          </TabsContent>
-
-          <TabsContent value="categories">
-            <CategoryManagement />
-          </TabsContent>
-
-          <TabsContent value="tables">
-            <TableManagement />
-          </TabsContent>
-
-          <TabsContent value="feedback">
-            <FeedbackViewer />
-          </TabsContent>
-        </Tabs>
+        {menuItems.length === 0 && (
+          <div className="text-center py-12">
+            <ImageIcon className="w-16 h-16 mx-auto text-muted-foreground/40 mb-4" />
+            <p className="text-muted-foreground">Belum ada menu. Klik tombol "Tambah Menu" untuk mulai.</p>
+          </div>
+        )}
       </div>
 
       {/* Add/Edit Dialog */}

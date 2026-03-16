@@ -1,18 +1,16 @@
 import { useSessionOrders } from '@/hooks/useOrders';
  import { useCancelOrder } from '@/hooks/useCancelOrder';
  import { useDeleteOrder } from '@/hooks/useDeleteOrder';
-import { useSessionFeedback } from '@/hooks/useFeedback';
 import { getSessionId } from '@/lib/session';
 import { motion, AnimatePresence } from 'framer-motion';
  import { useState, useEffect, useRef } from 'react';
- import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2, Star } from 'lucide-react';
+ import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PaymentDialog } from '@/components/payment/PaymentDialog';
-import { RatingDialog } from '@/components/orders/RatingDialog';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -109,12 +107,10 @@ export function OrderHistory() {
   const { data: orders, isLoading } = useSessionOrders(sessionId);
   const cancelOrder = useCancelOrder();
    const deleteOrder = useDeleteOrder();
-  const { data: sessionFeedback = [] } = useSessionFeedback();
   
   const [showPayment, setShowPayment] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedOrderAmount, setSelectedOrderAmount] = useState(0);
-  const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
 
    // Track previous order statuses and payment to detect real-time changes
    const prevOrdersRef = useRef<Map<string, { status: string; paymentStatus: string }>>(new Map());
@@ -294,8 +290,6 @@ export function OrderHistory() {
           const hasOngoingPayment = order.payment_status === 'pending' && order.payment_method;
           const canCancel = order.status === 'pending' && order.payment_status !== 'paid';
            const canDelete = order.status === 'cancelled';
-          const isDelivered = order.status === 'delivered';
-          const hasRated = sessionFeedback.some((f) => f.order_id === order.id);
 
           return (
             <motion.div
@@ -476,28 +470,6 @@ export function OrderHistory() {
                     </div>
                   )}
                    
-                   {/* Rating button for delivered orders */}
-                   {isDelivered && !hasRated && (
-                     <div className="pt-4 mt-3 border-t">
-                       <Button
-                         className="w-full"
-                         variant="outline"
-                         onClick={() => setRatingOrderId(order.id)}
-                       >
-                         <Star className="w-4 h-4 mr-2" />
-                         Beri Penilaian
-                       </Button>
-                     </div>
-                   )}
-                   {isDelivered && hasRated && (
-                     <div className="pt-4 mt-3 border-t text-center">
-                       <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
-                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                         <span>Terima kasih sudah menilai!</span>
-                       </div>
-                     </div>
-                   )}
-
                    {/* Delete cancelled order button */}
                    {canDelete && (
                      <div className="pt-4 mt-3 border-t">
@@ -543,15 +515,6 @@ export function OrderHistory() {
           orderId={selectedOrderId}
           totalAmount={selectedOrderAmount}
           onSuccess={handlePaymentSuccess}
-        />
-      )}
-
-      {/* Rating Dialog */}
-      {ratingOrderId && (
-        <RatingDialog
-          open={!!ratingOrderId}
-          onOpenChange={(open) => !open && setRatingOrderId(null)}
-          orderId={ratingOrderId}
         />
       )}
     </div>

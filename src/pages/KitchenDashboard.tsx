@@ -481,7 +481,7 @@ export default function KitchenDashboard() {
                   onClick={() => navigate('/admin/menu')}
                 >
                   <UtensilsCrossed className="w-4 h-4 mr-2" />
-                  Panel Admin
+                  Kelola Menu
                 </Button>
               )}
               <Button
