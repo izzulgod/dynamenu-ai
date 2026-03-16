@@ -109,10 +109,12 @@ export function OrderHistory() {
   const { data: orders, isLoading } = useSessionOrders(sessionId);
   const cancelOrder = useCancelOrder();
    const deleteOrder = useDeleteOrder();
+  const { data: sessionFeedback = [] } = useSessionFeedback();
   
   const [showPayment, setShowPayment] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
   const [selectedOrderAmount, setSelectedOrderAmount] = useState(0);
+  const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
 
    // Track previous order statuses and payment to detect real-time changes
    const prevOrdersRef = useRef<Map<string, { status: string; paymentStatus: string }>>(new Map());
