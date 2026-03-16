@@ -42,6 +42,7 @@ export default function AdminMenuPage() {
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [staffName, setStaffName] = useState('');
+  const [adminTab, setAdminTab] = useState<'menu' | 'categories' | 'tables' | 'feedback'>('menu');
 
   const { data: categories = [], refetch: refetchCategories } = useCategories();
   const { data: menuItems = [], refetch: refetchItems } = useMenuItems();
