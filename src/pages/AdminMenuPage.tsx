@@ -27,6 +27,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCategories, useMenuItems } from '@/hooks/useMenu';
 import { MenuItem, MenuCategory } from '@/types/restaurant';
 import { supabase } from '@/integrations/supabase/client';
