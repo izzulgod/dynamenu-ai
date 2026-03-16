@@ -1,16 +1,18 @@
 import { useSessionOrders } from '@/hooks/useOrders';
  import { useCancelOrder } from '@/hooks/useCancelOrder';
  import { useDeleteOrder } from '@/hooks/useDeleteOrder';
+import { useSessionFeedback } from '@/hooks/useFeedback';
 import { getSessionId } from '@/lib/session';
 import { motion, AnimatePresence } from 'framer-motion';
  import { useState, useEffect, useRef } from 'react';
- import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+ import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
 import { PaymentDialog } from '@/components/payment/PaymentDialog';
+import { RatingDialog } from '@/components/orders/RatingDialog';
 import { toast } from 'sonner';
 import {
   AlertDialog,
