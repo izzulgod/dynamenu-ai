@@ -476,6 +476,28 @@ export function OrderHistory() {
                     </div>
                   )}
                    
+                   {/* Rating button for delivered orders */}
+                   {isDelivered && !hasRated && (
+                     <div className="pt-4 mt-3 border-t">
+                       <Button
+                         className="w-full"
+                         variant="outline"
+                         onClick={() => setRatingOrderId(order.id)}
+                       >
+                         <Star className="w-4 h-4 mr-2" />
+                         Beri Penilaian
+                       </Button>
+                     </div>
+                   )}
+                   {isDelivered && hasRated && (
+                     <div className="pt-4 mt-3 border-t text-center">
+                       <div className="flex items-center justify-center gap-1 text-sm text-muted-foreground">
+                         <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                         <span>Terima kasih sudah menilai!</span>
+                       </div>
+                     </div>
+                   )}
+
                    {/* Delete cancelled order button */}
                    {canDelete && (
                      <div className="pt-4 mt-3 border-t">
@@ -521,6 +543,15 @@ export function OrderHistory() {
           orderId={selectedOrderId}
           totalAmount={selectedOrderAmount}
           onSuccess={handlePaymentSuccess}
+        />
+      )}
+
+      {/* Rating Dialog */}
+      {ratingOrderId && (
+        <RatingDialog
+          open={!!ratingOrderId}
+          onOpenChange={(open) => !open && setRatingOrderId(null)}
+          orderId={ratingOrderId}
         />
       )}
     </div>
