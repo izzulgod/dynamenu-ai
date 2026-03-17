@@ -503,6 +503,15 @@ export function OrderHistory() {
                        </AlertDialog>
                      </div>
                    )}
+
+                   {/* Rating form for delivered orders */}
+                   {order.status === 'delivered' && (
+                     <RatingForm
+                       orderId={order.id}
+                       sessionId={sessionId}
+                       alreadyRated={sessionFeedback.some((f) => f.order_id === order.id)}
+                     />
+                   )}
                 </CardContent>
               </Card>
             </motion.div>
