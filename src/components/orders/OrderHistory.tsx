@@ -1,7 +1,9 @@
 import { useSessionOrders } from '@/hooks/useOrders';
- import { useCancelOrder } from '@/hooks/useCancelOrder';
- import { useDeleteOrder } from '@/hooks/useDeleteOrder';
+import { useCancelOrder } from '@/hooks/useCancelOrder';
+import { useDeleteOrder } from '@/hooks/useDeleteOrder';
+import { useSessionFeedback } from '@/hooks/useRatings';
 import { getSessionId } from '@/lib/session';
+import { RatingForm } from '@/components/orders/RatingForm';
 import { motion, AnimatePresence } from 'framer-motion';
  import { useState, useEffect, useRef } from 'react';
  import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
