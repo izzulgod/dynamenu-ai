@@ -1,9 +1,7 @@
 import { useSessionOrders } from '@/hooks/useOrders';
-import { useCancelOrder } from '@/hooks/useCancelOrder';
-import { useDeleteOrder } from '@/hooks/useDeleteOrder';
-import { useSessionFeedback } from '@/hooks/useRatings';
+ import { useCancelOrder } from '@/hooks/useCancelOrder';
+ import { useDeleteOrder } from '@/hooks/useDeleteOrder';
 import { getSessionId } from '@/lib/session';
-import { RatingForm } from '@/components/orders/RatingForm';
 import { motion, AnimatePresence } from 'framer-motion';
  import { useState, useEffect, useRef } from 'react';
  import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
@@ -107,7 +105,6 @@ const paymentMethodConfig = {
 export function OrderHistory() {
   const sessionId = getSessionId();
   const { data: orders, isLoading } = useSessionOrders(sessionId);
-  const { data: sessionFeedback = [] } = useSessionFeedback(sessionId);
   const cancelOrder = useCancelOrder();
    const deleteOrder = useDeleteOrder();
   
@@ -502,15 +499,6 @@ export function OrderHistory() {
                          </AlertDialogContent>
                        </AlertDialog>
                      </div>
-                   )}
-
-                   {/* Rating form for delivered orders */}
-                   {order.status === 'delivered' && (
-                     <RatingForm
-                       orderId={order.id}
-                       sessionId={sessionId}
-                       alreadyRated={sessionFeedback.some((f) => f.order_id === order.id)}
-                     />
                    )}
                 </CardContent>
               </Card>

@@ -402,14 +402,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_menu_item_ratings: {
-        Args: never
-        Returns: {
-          avg_rating: number
-          menu_item_id: string
-          total_reviews: number
-        }[]
-      }
       has_staff_role: {
         Args: {
           required_role: Database["public"]["Enums"]["staff_role"]
