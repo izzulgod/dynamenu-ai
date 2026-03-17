@@ -107,6 +107,7 @@ const paymentMethodConfig = {
 export function OrderHistory() {
   const sessionId = getSessionId();
   const { data: orders, isLoading } = useSessionOrders(sessionId);
+  const { data: sessionFeedback = [] } = useSessionFeedback(sessionId);
   const cancelOrder = useCancelOrder();
    const deleteOrder = useDeleteOrder();
   
