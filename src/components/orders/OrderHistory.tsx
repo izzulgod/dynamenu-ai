@@ -189,9 +189,10 @@ export function OrderHistory() {
                });
              }
              break;
-         }
-       }
-     });
+          }
+          }
+        }
+      });
  
      prevOrdersRef.current = currentMap;
    }, [orders]);
