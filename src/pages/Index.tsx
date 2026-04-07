@@ -51,14 +51,13 @@ const Index = () => {
             <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
               <Button
                 size="lg"
-                className="gap-2 h-11 px-8"
+                className="w-full sm:w-auto gap-2 h-11 px-8"
                 onClick={() => setScannerOpen(true)}>
-                
                 <QrCode className="w-5 h-5" />
                 Scan QR Meja
               </Button>
-              <Link to="/admin">
-                <Button size="lg" variant="outline" className="gap-2 h-11 px-8">
+              <Link to="/admin" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="w-full sm:w-auto gap-2 h-11 px-8">
                   <ChefHat className="w-5 h-5" />
                   Dashboard Admin
                 </Button>
