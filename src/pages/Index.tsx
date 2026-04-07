@@ -48,17 +48,17 @@ const Index = () => {
               Scan QR, chat dengan AI, dan nikmati hidangan lezat. Pengalaman makan yang lebih cerdas dan menyenangkan.
             </p>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row items-center gap-4 justify-center w-full max-w-md mx-auto sm:max-w-none">
               <Button
                 size="lg"
-                className="gap-2 h-14 px-8 text-lg"
+                variant="outline"
+                className="gap-2 h-11 px-8 w-full sm:w-auto"
                 onClick={() => setScannerOpen(true)}>
-                
                 <QrCode className="w-5 h-5" />
                 Scan QR Meja
               </Button>
-              <Link to="/admin">
-                <Button size="lg" variant="outline" className="gap-2 h-14 px-8 text-lg">
+              <Link to="/admin" className="w-full sm:w-auto">
+                <Button size="lg" variant="outline" className="gap-2 h-11 px-8 w-full sm:w-auto">
                   <ChefHat className="w-5 h-5" />
                   Dashboard Admin
                 </Button>

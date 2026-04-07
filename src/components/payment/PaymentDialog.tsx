@@ -97,13 +97,13 @@ export function PaymentDialog({
   useEffect(() => {
     if (currentOrder?.payment_status === 'paid' && step !== 'confirmed') {
       setStep('confirmed');
-      toast.success('Pembayaran telah dikonfirmasi!');
+      toast.success('Pembayaran telah dikonfirmasi!', { id: `payment-confirmed-${orderId}` });
       setTimeout(() => {
         onSuccess();
         onOpenChange(false);
       }, 2000);
     }
-  }, [currentOrder?.payment_status, step, onSuccess, onOpenChange]);
+  }, [currentOrder?.payment_status, step, onSuccess, onOpenChange, orderId]);
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
