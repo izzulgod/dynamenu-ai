@@ -97,7 +97,6 @@ export function PaymentDialog({
   useEffect(() => {
     if (currentOrder?.payment_status === 'paid' && step !== 'confirmed') {
       setStep('confirmed');
-      toast.success('Pembayaran telah dikonfirmasi!');
       setTimeout(() => {
         onSuccess();
         onOpenChange(false);

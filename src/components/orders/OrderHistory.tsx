@@ -219,7 +219,6 @@ export function OrderHistory() {
   const handlePaymentSuccess = () => {
     setShowPayment(false);
     setSelectedOrderId(null);
-    toast.success('Pembayaran berhasil! Pesanan sedang diproses.');
   };
 
   const handleCancelOrder = async (orderId: string) => {
