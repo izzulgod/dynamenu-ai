@@ -262,45 +262,16 @@ export default function KitchenDashboard() {
     const hasPendingCash = group.subOrders.some(o => o.payment_method === 'cash' && o.payment_status === 'pending');
     
     const handleGroupStatusUpdate = async (newStatus: OrderWithItems['status']) => {
-      const toUpdate = group.subOrders.filter(sub => sub.status !== newStatus);
-      if (toUpdate.length === 0) return;
-      for (const sub of toUpdate) {
-        setPendingOrderActions(prev => new Set(prev).add(sub.id));
-      }
-      try {
-        for (const sub of toUpdate) {
-          await updateStatus.mutateAsync({ orderId: sub.id, status: newStatus });
+      for (const sub of group.subOrders) {
+        if (sub.status !== newStatus) {
+          await handleStatusUpdate(sub.id, newStatus);
         }
-        toast.success(`Status diupdate: ${statusConfig[newStatus].label}`, { id: `group-status-${group.tableKey}-${newStatus}` });
-      } catch (error) {
-        toast.error('Gagal update status');
-      } finally {
-        setPendingOrderActions(prev => {
-          const s = new Set(prev);
-          toUpdate.forEach(sub => s.delete(sub.id));
-          return s;
-        });
       }
     };
 
     const handleGroupCancel = async () => {
       for (const sub of group.subOrders) {
-        setPendingOrderActions(prev => new Set(prev).add(sub.id));
-      }
-      try {
-        for (const sub of group.subOrders) {
-          await kitchenCancel.mutateAsync({ orderId: sub.id, reason: cancelReason || 'Dibatalkan oleh dapur' });
-        }
-        toast.success('Pesanan berhasil dibatalkan', { id: `group-cancel-${group.tableKey}` });
-        setCancelReason('');
-      } catch (error) {
-        toast.error('Gagal membatalkan pesanan');
-      } finally {
-        setPendingOrderActions(prev => {
-          const s = new Set(prev);
-          group.subOrders.forEach(sub => s.delete(sub.id));
-          return s;
-        });
+        await handleKitchenCancelOrder(sub.id);
       }
     };
 
