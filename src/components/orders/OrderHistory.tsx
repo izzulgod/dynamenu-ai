@@ -123,29 +123,34 @@ export function OrderHistory() {
  
      const currentMap = new Map<string, { status: string; paymentStatus: string }>();
      
-     orders.forEach(order => {
-       const prev = prevOrdersRef.current.get(order.id);
-       currentMap.set(order.id, { status: order.status, paymentStatus: order.payment_status });
-       
-       if (!prev) return; // First load, don't toast
-       
-       // Create unique keys per order+change to deduplicate
-       const paymentKey = `${order.id}-payment-${order.payment_status}`;
-       const statusKey = `${order.id}-status-${order.status}`;
-       
-       // Payment status changed to paid
-       if (prev.paymentStatus !== 'paid' && order.payment_status === 'paid' && !toastedRef.current.has(paymentKey)) {
-         toastedRef.current.add(paymentKey);
-         toast.success('💰 Pembayaran dikonfirmasi!', {
-           id: paymentKey,
-           description: 'Pesanan akan segera diproses dapur.',
-           duration: 5000,
-         });
-       }
-       
-       // Order status changes
-       if (prev.status !== order.status && !toastedRef.current.has(statusKey)) {
-         toastedRef.current.add(statusKey);
+      orders.forEach(order => {
+        const prev = prevOrdersRef.current.get(order.id);
+        currentMap.set(order.id, { status: order.status, paymentStatus: order.payment_status });
+        
+        if (!prev) return; // First load, don't toast
+        
+        // Create unique keys per order+change to deduplicate
+        const paymentKey = `${order.id}-payment-${order.payment_status}`;
+        const statusKey = `${order.id}-status-${order.status}`;
+        
+        // Payment status changed to paid
+        const paymentJustConfirmed = prev.paymentStatus !== 'paid' && order.payment_status === 'paid';
+        if (paymentJustConfirmed && !toastedRef.current.has(paymentKey)) {
+          toastedRef.current.add(paymentKey);
+          toast.success('💰 Pembayaran dikonfirmasi!', {
+            id: paymentKey,
+            description: 'Pesanan akan segera diproses dapur.',
+            duration: 5000,
+          });
+        }
+        
+        // Order status changes — skip "confirmed" if payment was just confirmed (same update)
+        if (prev.status !== order.status && !toastedRef.current.has(statusKey)) {
+          if (paymentJustConfirmed && order.status === 'confirmed') {
+            // Skip redundant "confirmed" toast when payment confirmation already shown
+            toastedRef.current.add(statusKey);
+          } else {
+          toastedRef.current.add(statusKey);
          switch (order.status) {
            case 'confirmed':
              toast.info('✅ Pesanan dikonfirmasi!', {
@@ -184,9 +189,10 @@ export function OrderHistory() {
                });
              }
              break;
-         }
-       }
-     });
+          }
+          }
+        }
+      });
  
      prevOrdersRef.current = currentMap;
    }, [orders]);
