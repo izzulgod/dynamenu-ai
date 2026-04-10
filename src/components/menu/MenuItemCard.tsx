@@ -1,5 +1,7 @@
+import { useRef } from 'react';
 import { MenuItem } from '@/types/restaurant';
 import { useCart } from '@/hooks/useCart';
+import { useFlyToCart } from '@/components/cart/FlyToCartProvider';
 import { motion } from 'framer-motion';
 import { Plus, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -62,10 +64,19 @@ const getFoodPlaceholder = (name: string): string => {
 
 export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
   const { addItem } = useCart();
+  const { triggerFly } = useFlyToCart();
+  const btnRef = useRef<HTMLButtonElement>(null);
 
   const handleAddToCart = () => {
     addItem(item);
     toast.success(`${item.name} ditambahkan ke keranjang!`);
+
+    // Trigger fly animation from button position
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      const imgUrl = item.image_url || getFoodPlaceholder(item.name);
+      triggerFly(imgUrl, rect);
+    }
   };
 
   const formatPrice = (price: number) => {
@@ -107,8 +118,9 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
         </div>
 
         {/* Quick Add Button */}
-        <Button
-          size="icon"
+          <Button
+            ref={btnRef}
+            size="icon"
           onClick={handleAddToCart}
           className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-primary text-primary-foreground opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 shadow-strong hover:scale-110"
         >
