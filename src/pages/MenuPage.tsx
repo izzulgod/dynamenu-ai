@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { FlyToCartProvider } from '@/components/cart/FlyToCartProvider';
 import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList } from 'lucide-react';
 import { useTable } from '@/hooks/useTable';
 import { useMenuItems } from '@/hooks/useMenu';
@@ -120,6 +121,7 @@ export default function MenuPage() {
   }
 
   return (
+    <FlyToCartProvider>
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header - simplified without tabs */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
@@ -237,6 +239,7 @@ export default function MenuPage() {
 
       {/* Voice Assistant Floating Bubble */}
       <VoiceAssistantBubble />
-    </div>);
+    </div>
+    </FlyToCartProvider>);
 
 }
