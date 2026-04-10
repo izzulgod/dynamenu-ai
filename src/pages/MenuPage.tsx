@@ -238,6 +238,7 @@ export default function MenuPage() {
 
       {/* Voice Assistant Floating Bubble */}
       <VoiceAssistantBubble />
-    </div>);
+    </div>
+    </FlyToCartProvider>);
 
 }
