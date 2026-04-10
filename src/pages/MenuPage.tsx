@@ -120,6 +120,7 @@ export default function MenuPage() {
   }
 
   return (
+    <FlyToCartProvider>
     <div className="min-h-screen bg-background flex flex-col">
       {/* Header - simplified without tabs */}
       <header className="sticky top-0 z-40 bg-background/80 backdrop-blur-md border-b border-border">
