@@ -216,7 +216,7 @@ export default function MenuPage() {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-xl transition-all duration-200 ${
+            className={`relative flex flex-col items-center gap-1 px-6 py-1.5 rounded-xl transition-all duration-200 ${
             activeTab === key ?
             'text-primary' :
             'text-muted-foreground hover:text-foreground'}`
@@ -227,8 +227,8 @@ export default function MenuPage() {
               {activeTab === key &&
             <motion.div
               layoutId="bottomNavIndicator"
-              className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
-
+              className="absolute -top-px left-0 right-0 mx-auto w-8 h-0.5 bg-primary rounded-full"
+              transition={{ type: "spring", stiffness: 500, damping: 30 }} />
             }
             </button>
           )}
