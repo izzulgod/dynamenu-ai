@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList } from 'lucide-react';
 import { useTable } from '@/hooks/useTable';
-import { useCategories, useMenuItems } from '@/hooks/useMenu';
+import { useMenuItems } from '@/hooks/useMenu';
 import { useCart } from '@/hooks/useCart';
 import { useChat } from '@/hooks/useChat';
 import { useCreateOrder } from '@/hooks/useOrders';
@@ -23,14 +23,14 @@ export default function MenuPage() {
   const [searchParams] = useSearchParams();
   const tableNumber = searchParams.get('table') ? parseInt(searchParams.get('table')!) : null;
 
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<import('@/components/menu/CategoryTabs').MenuFilter>('all');
   const [activeTab, setActiveTab] = useState<'menu' | 'chat' | 'orders'>('menu');
 
   const sessionId = getSessionId();
 
   const { data: table, isLoading: tableLoading, error: tableError } = useTable(tableNumber);
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
-  const { data: menuItems = [], isLoading: menuLoading } = useMenuItems(selectedCategory ?? undefined);
+  
+  const { data: menuItems = [], isLoading: menuLoading } = useMenuItems(selectedFilter);
 
   const { setTable, tableId } = useCart();
   const { messages, sendMessage, isLoading: chatLoading } = useChat(sessionId, table?.id ?? null, {
@@ -144,13 +144,11 @@ export default function MenuPage() {
           </div>
 
           {/* Category Tabs - only show on menu tab */}
-          {activeTab === 'menu' && !categoriesLoading &&
+          {activeTab === 'menu' &&
           <div className="mt-3">
               <CategoryTabs
-              categories={categories}
-              selectedCategory={selectedCategory}
-              onSelectCategory={setSelectedCategory} />
-            
+              selected={selectedFilter}
+              onSelect={setSelectedFilter} />
             </div>
           }
         </div>
