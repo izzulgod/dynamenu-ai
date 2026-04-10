@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList } from 'lucide-react';
 import { useTable } from '@/hooks/useTable';
-import { useCategories, useMenuItems } from '@/hooks/useMenu';
+import { useMenuItems } from '@/hooks/useMenu';
 import { useCart } from '@/hooks/useCart';
 import { useChat } from '@/hooks/useChat';
 import { useCreateOrder } from '@/hooks/useOrders';
@@ -29,7 +29,7 @@ export default function MenuPage() {
   const sessionId = getSessionId();
 
   const { data: table, isLoading: tableLoading, error: tableError } = useTable(tableNumber);
-  const { data: categories = [], isLoading: categoriesLoading } = useCategories();
+  
   const { data: menuItems = [], isLoading: menuLoading } = useMenuItems(selectedFilter);
 
   const { setTable, tableId } = useCart();
