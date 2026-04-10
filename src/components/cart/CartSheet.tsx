@@ -2,6 +2,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
 import { useCreateOrder } from '@/hooks/useOrders';
 import { getSessionId } from '@/lib/session';
+import { useFlyToCart } from '@/components/cart/FlyToCartProvider';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Minus, Plus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -23,6 +24,15 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
   const totalItems = getTotalItems();
   const totalAmount = getTotalAmount();
   const sessionId = getSessionId();
+
+  // Connect cart icon ref for fly-to-cart animation
+  let flyToCart: ReturnType<typeof useFlyToCart> | null = null;
+  try { flyToCart = useFlyToCart(); } catch { /* not inside provider */ }
+  const cartRef = (el: HTMLElement | null) => {
+    if (flyToCart?.cartIconRef) {
+      (flyToCart.cartIconRef as React.MutableRefObject<HTMLElement | null>).current = el;
+    }
+  };
 
   const handlePlaceOrder = async () => {
     if (!tableId || items.length === 0) {
@@ -68,7 +78,7 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
     <Sheet>
       <SheetTrigger asChild>
         {inline ?
-        <button className="relative p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors">
+        <button ref={cartRef} className="relative p-2 rounded-lg hover:bg-primary/10 active:bg-primary/20 transition-colors">
             <ShoppingCart className="text-foreground w-[25px] h-[25px]" />
             {totalItems > 0 &&
           <Badge className="absolute -top-1 -right-1 w-5 h-5 p-0 flex items-center justify-center text-[10px] bg-primary text-primary-foreground">
