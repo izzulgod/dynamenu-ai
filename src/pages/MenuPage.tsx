@@ -216,7 +216,7 @@ export default function MenuPage() {
           <button
             key={key}
             onClick={() => setActiveTab(key)}
-            className={`relative flex flex-col items-center gap-1 px-6 py-1.5 rounded-xl transition-all duration-200 ${
+            className={`flex flex-col items-center gap-1 px-6 py-1.5 rounded-xl transition-all duration-200 ${
             activeTab === key ?
             'text-primary' :
             'text-muted-foreground hover:text-foreground'}`
@@ -225,8 +225,10 @@ export default function MenuPage() {
               <Icon className={`w-5 h-5 transition-transform duration-200 ${activeTab === key ? 'scale-110' : ''}`} />
               <span className={`text-[10px] font-medium ${activeTab === key ? 'font-semibold' : ''}`}>{label}</span>
               {activeTab === key &&
-            <div
+            <motion.div
+              layoutId="bottomNavIndicator"
               className="absolute -top-px left-1/2 -translate-x-1/2 w-8 h-0.5 bg-primary rounded-full" />
+
             }
             </button>
           )}
