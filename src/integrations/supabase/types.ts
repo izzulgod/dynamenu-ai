@@ -410,6 +410,15 @@ export type Database = {
           total_reviews: number
         }[]
       }
+      get_menu_item_stats: {
+        Args: never
+        Returns: {
+          avg_rating: number
+          menu_item_id: string
+          total_reviews: number
+          total_sold: number
+        }[]
+      }
       has_staff_role: {
         Args: {
           required_role: Database["public"]["Enums"]["staff_role"]
