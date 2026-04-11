@@ -10,6 +10,7 @@ import MenuPage from "./pages/MenuPage";
 import AdminLoginPage from "./pages/AdminLoginPage";
 import KitchenDashboard from "./pages/KitchenDashboard";
 import AdminMenuPage from "./pages/AdminMenuPage";
+import KitchenAnalyticsPage from "./pages/KitchenAnalyticsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => {
             <Route path="/admin" element={<AdminLoginPage />} />
             <Route path="/admin/kitchen" element={<KitchenDashboard />} />
             <Route path="/admin/menu" element={<AdminMenuPage />} />
+            <Route path="/admin/analytics" element={<KitchenAnalyticsPage />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

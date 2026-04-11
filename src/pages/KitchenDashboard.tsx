@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChefHat, Clock, CheckCircle, Truck, LogOut, 
   RefreshCw, Bell, Coffee, Loader2, ShieldAlert, UtensilsCrossed,
-  Banknote, QrCode, CreditCard, XCircle, AlertTriangle
+  Banknote, QrCode, CreditCard, XCircle, AlertTriangle, BarChart3
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -475,9 +475,18 @@ export default function KitchenDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/admin/analytics')}
+              >
+                <BarChart3 className="w-4 h-4 mr-2" />
+                Analitik
+              </Button>
               {staffRole === 'admin' && (
                 <Button
                   variant="outline"
+                  size="sm"
                   onClick={() => navigate('/admin/menu')}
                 >
                   <UtensilsCrossed className="w-4 h-4 mr-2" />
