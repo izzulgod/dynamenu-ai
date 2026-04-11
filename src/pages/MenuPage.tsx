@@ -5,6 +5,7 @@ import { FlyToCartProvider } from '@/components/cart/FlyToCartProvider';
 import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList } from 'lucide-react';
 import { useTable } from '@/hooks/useTable';
 import { useMenuItems } from '@/hooks/useMenu';
+import { useMenuStats } from '@/hooks/useMenuStats';
 import { useCart } from '@/hooks/useCart';
 import { useChat } from '@/hooks/useChat';
 import { useCreateOrder } from '@/hooks/useOrders';
@@ -32,6 +33,16 @@ export default function MenuPage() {
   const { data: table, isLoading: tableLoading, error: tableError } = useTable(tableNumber);
   
   const { data: menuItems = [], isLoading: menuLoading } = useMenuItems(selectedFilter);
+  const { data: statsMap } = useMenuStats();
+
+  // Sort menu items: best sellers & highest rated first
+  const sortedMenuItems = [...menuItems].sort((a, b) => {
+    const sa = statsMap?.get(a.id);
+    const sb = statsMap?.get(b.id);
+    const scoreA = (sa?.total_sold ?? 0) * 0.5 + (sa?.avg_rating ?? 0) * 10;
+    const scoreB = (sb?.total_sold ?? 0) * 0.5 + (sb?.avg_rating ?? 0) * 10;
+    return scoreB - scoreA;
+  });
 
   const { setTable, tableId } = useCart();
   const { messages, sendMessage, isLoading: chatLoading } = useChat(sessionId, table?.id ?? null, {
@@ -180,13 +191,13 @@ export default function MenuPage() {
             animate={{ opacity: 1 }}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             
-                {menuItems.map((item, index) =>
-            <MenuItemCard key={item.id} item={item} index={index} />
+                {sortedMenuItems.map((item, index) =>
+            <MenuItemCard key={item.id} item={item} index={index} stats={statsMap?.get(item.id)} />
             )}
               </motion.div>
           }
 
-            {menuItems.length === 0 && !menuLoading &&
+            {sortedMenuItems.length === 0 && !menuLoading &&
           <div className="text-center py-12">
                 <div className="text-5xl mb-4">🍽️</div>
                 <p className="text-muted-foreground">Tidak ada menu di kategori ini</p>

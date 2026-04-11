@@ -1,10 +1,13 @@
 import { useSessionOrders } from '@/hooks/useOrders';
- import { useCancelOrder } from '@/hooks/useCancelOrder';
- import { useDeleteOrder } from '@/hooks/useDeleteOrder';
+import { useCancelOrder } from '@/hooks/useCancelOrder';
+import { useDeleteOrder } from '@/hooks/useDeleteOrder';
 import { getSessionId } from '@/lib/session';
 import { motion, AnimatePresence } from 'framer-motion';
- import { useState, useEffect, useRef } from 'react';
- import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Clock, CheckCircle, ChefHat, Bell, Package, XCircle, CreditCard, Banknote, QrCode, AlertTriangle, Loader2, Trash2 } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { OrderRating } from './OrderRating';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -106,7 +109,21 @@ export function OrderHistory() {
   const sessionId = getSessionId();
   const { data: orders, isLoading } = useSessionOrders(sessionId);
   const cancelOrder = useCancelOrder();
-   const deleteOrder = useDeleteOrder();
+  const deleteOrder = useDeleteOrder();
+
+  // Fetch existing feedback for this session to know which orders are already rated
+  const { data: existingFeedback } = useQuery({
+    queryKey: ['session-feedback', sessionId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('feedback')
+        .select('order_id')
+        .eq('session_id', sessionId);
+      if (error) throw error;
+      return new Set((data ?? []).map((f: any) => f.order_id));
+    },
+    enabled: !!sessionId,
+  });
   
   const [showPayment, setShowPayment] = useState(false);
   const [selectedOrderId, setSelectedOrderId] = useState<string | null>(null);
@@ -502,6 +519,15 @@ export function OrderHistory() {
                          </AlertDialogContent>
                        </AlertDialog>
                      </div>
+                   )}
+
+                   {/* Rating for delivered orders */}
+                   {order.status === 'delivered' && (
+                     <OrderRating
+                       orderId={order.id}
+                       sessionId={sessionId}
+                       alreadyRated={existingFeedback?.has(order.id)}
+                     />
                    )}
                 </CardContent>
               </Card>

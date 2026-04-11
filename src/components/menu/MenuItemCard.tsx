@@ -3,21 +3,22 @@ import { MenuItem } from '@/types/restaurant';
 import { useCart } from '@/hooks/useCart';
 import { useFlyToCart } from '@/components/cart/FlyToCartProvider';
 import { motion } from 'framer-motion';
-import { Plus, Clock, Star } from 'lucide-react';
+import { Plus, Clock, Star, Flame } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import type { MenuItemStats } from '@/hooks/useMenuStats';
 
 interface MenuItemCardProps {
   item: MenuItem;
   index?: number;
+  stats?: MenuItemStats;
 }
 
 // Food placeholder images based on keywords
 const getFoodPlaceholder = (name: string): string => {
   const lowerName = name.toLowerCase();
   
-  // Map common Indonesian food keywords to Unsplash food images
   if (lowerName.includes('nasi goreng') || lowerName.includes('fried rice')) {
     return 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?w=400&h=300&fit=crop';
   }
@@ -58,11 +59,34 @@ const getFoodPlaceholder = (name: string): string => {
     return 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=400&h=300&fit=crop';
   }
   
-  // Default food image
   return 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=400&h=300&fit=crop';
 };
 
-export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
+function formatSoldCount(count: number): string {
+  if (count >= 1000) return `${(count / 1000).toFixed(1).replace(/\.0$/, '')}rb`;
+  return `${count}`;
+}
+
+// Star fill percentage for partial stars
+function RatingStars({ rating }: { rating: number }) {
+  return (
+    <div className="flex items-center gap-0.5">
+      {[1, 2, 3, 4, 5].map((star) => {
+        const fill = Math.min(1, Math.max(0, rating - (star - 1)));
+        return (
+          <div key={star} className="relative w-3 h-3">
+            <Star className="w-3 h-3 text-muted-foreground/20 absolute inset-0" />
+            <div className="overflow-hidden absolute inset-0" style={{ width: `${fill * 100}%` }}>
+              <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function MenuItemCard({ item, index = 0, stats }: MenuItemCardProps) {
   const { addItem } = useCart();
   const { triggerFly } = useFlyToCart();
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -71,7 +95,6 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
     addItem(item);
     toast.success(`${item.name} ditambahkan ke keranjang!`);
 
-    // Trigger fly animation from button position
     if (btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
       const imgUrl = item.image_url || getFoodPlaceholder(item.name);
@@ -87,6 +110,11 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
     }).format(price);
   };
 
+  const avgRating = stats?.avg_rating ?? 0;
+  const totalSold = stats?.total_sold ?? 0;
+  const isBestSeller = totalSold >= 10;
+  const isFavorite = avgRating >= 4.0 && (stats?.total_reviews ?? 0) >= 2;
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -101,7 +129,6 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
           alt={item.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           onError={(e) => {
-            // Fallback to placeholder if image fails to load
             const target = e.target as HTMLImageElement;
             target.src = getFoodPlaceholder(item.name);
           }}
@@ -109,18 +136,24 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
         
         {/* Badges */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
-          {item.is_recommended && (
-            <Badge className="bg-primary text-primary-foreground text-xs gap-1">
-              <Star className="w-3 h-3" />
+          {isFavorite && (
+            <Badge className="bg-yellow-500 text-white text-[10px] gap-0.5 px-1.5 py-0.5">
+              <Star className="w-2.5 h-2.5 fill-white" />
               Favorit
+            </Badge>
+          )}
+          {isBestSeller && !isFavorite && (
+            <Badge className="bg-orange-500 text-white text-[10px] gap-0.5 px-1.5 py-0.5">
+              <Flame className="w-2.5 h-2.5" />
+              Laris
             </Badge>
           )}
         </div>
 
         {/* Quick Add Button */}
-          <Button
-            ref={btnRef}
-            size="icon"
+        <Button
+          ref={btnRef}
+          size="icon"
           onClick={handleAddToCart}
           className="absolute bottom-2 right-2 w-10 h-10 rounded-full bg-primary text-primary-foreground opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-all duration-300 shadow-strong hover:scale-110"
         >
@@ -129,40 +162,42 @@ export function MenuItemCard({ item, index = 0 }: MenuItemCardProps) {
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-2">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-foreground line-clamp-1">
-            {item.name}
-          </h3>
-        </div>
+      <div className="p-3 space-y-1.5">
+        <h3 className="font-semibold text-foreground line-clamp-1 text-sm">
+          {item.name}
+        </h3>
 
         {item.description && (
-          <p className="text-sm text-muted-foreground line-clamp-2">
+          <p className="text-xs text-muted-foreground line-clamp-2">
             {item.description}
           </p>
         )}
 
-        {/* Tags */}
-        {item.tags && item.tags.length > 0 && (
-          <div className="flex flex-wrap gap-1">
-            {item.tags.slice(0, 3).map((tag) => (
-              <span
-                key={tag}
-                className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground"
-              >
-                {tag}
-              </span>
-            ))}
+        {/* Rating & Sold */}
+        {(avgRating > 0 || totalSold > 0) && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {avgRating > 0 && (
+              <div className="flex items-center gap-1">
+                <RatingStars rating={avgRating} />
+                <span className="text-xs font-medium text-foreground">{avgRating}</span>
+              </div>
+            )}
+            {avgRating > 0 && totalSold > 0 && (
+              <span className="text-muted-foreground text-[10px]">•</span>
+            )}
+            {totalSold > 0 && (
+              <span className="text-xs text-muted-foreground">{formatSoldCount(totalSold)} terjual</span>
+            )}
           </div>
         )}
 
         {/* Price and Time */}
-        <div className="flex items-center justify-between pt-2">
-          <span className="font-bold text-primary text-lg">
+        <div className="flex items-center justify-between pt-1">
+          <span className="font-bold text-primary text-base">
             {formatPrice(item.price)}
           </span>
-          <div className="flex items-center gap-1 text-muted-foreground text-sm">
-            <Clock className="w-3.5 h-3.5" />
+          <div className="flex items-center gap-1 text-muted-foreground text-xs">
+            <Clock className="w-3 h-3" />
             <span>{item.preparation_time} min</span>
           </div>
         </div>
