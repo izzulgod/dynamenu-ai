@@ -520,6 +520,15 @@ export function OrderHistory() {
                        </AlertDialog>
                      </div>
                    )}
+
+                   {/* Rating for delivered orders */}
+                   {order.status === 'delivered' && (
+                     <OrderRating
+                       orderId={order.id}
+                       sessionId={sessionId}
+                       alreadyRated={existingFeedback?.has(order.id)}
+                     />
+                   )}
                 </CardContent>
               </Card>
             </motion.div>
