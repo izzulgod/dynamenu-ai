@@ -5,6 +5,7 @@ import { FlyToCartProvider } from '@/components/cart/FlyToCartProvider';
 import { MessageCircle, Grid, AlertTriangle, MapPin, ClipboardList } from 'lucide-react';
 import { useTable } from '@/hooks/useTable';
 import { useMenuItems } from '@/hooks/useMenu';
+import { useMenuStats } from '@/hooks/useMenuStats';
 import { useCart } from '@/hooks/useCart';
 import { useChat } from '@/hooks/useChat';
 import { useCreateOrder } from '@/hooks/useOrders';
@@ -32,6 +33,16 @@ export default function MenuPage() {
   const { data: table, isLoading: tableLoading, error: tableError } = useTable(tableNumber);
   
   const { data: menuItems = [], isLoading: menuLoading } = useMenuItems(selectedFilter);
+  const { data: statsMap } = useMenuStats();
+
+  // Sort menu items: best sellers & highest rated first
+  const sortedMenuItems = [...menuItems].sort((a, b) => {
+    const sa = statsMap?.get(a.id);
+    const sb = statsMap?.get(b.id);
+    const scoreA = (sa?.total_sold ?? 0) * 0.5 + (sa?.avg_rating ?? 0) * 10;
+    const scoreB = (sb?.total_sold ?? 0) * 0.5 + (sb?.avg_rating ?? 0) * 10;
+    return scoreB - scoreA;
+  });
 
   const { setTable, tableId } = useCart();
   const { messages, sendMessage, isLoading: chatLoading } = useChat(sessionId, table?.id ?? null, {
