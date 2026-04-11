@@ -191,13 +191,13 @@ export default function MenuPage() {
             animate={{ opacity: 1 }}
             className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             
-                {menuItems.map((item, index) =>
-            <MenuItemCard key={item.id} item={item} index={index} />
+                {sortedMenuItems.map((item, index) =>
+            <MenuItemCard key={item.id} item={item} index={index} stats={statsMap?.get(item.id)} />
             )}
               </motion.div>
           }
 
-            {menuItems.length === 0 && !menuLoading &&
+            {sortedMenuItems.length === 0 && !menuLoading &&
           <div className="text-center py-12">
                 <div className="text-5xl mb-4">🍽️</div>
                 <p className="text-muted-foreground">Tidak ada menu di kategori ini</p>
