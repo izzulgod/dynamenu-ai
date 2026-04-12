@@ -6,6 +6,7 @@ import {
   Loader2, ShieldAlert, Image as ImageIcon, ArrowLeft, Save
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -256,6 +257,13 @@ export default function AdminMenuPage() {
     }
   };
 
+  const handleStockChange = async (itemId: string, currentStock: number | null, delta: number) => {
+    const newStock = currentStock === null ? (delta > 0 ? 1 : 0) : Math.max(0, currentStock + delta);
+    const { error } = await supabase.from('menu_items').update({ stock: newStock } as any).eq('id', itemId);
+    if (error) { toast.error('Gagal update stok'); return; }
+    refetchItems();
+  };
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('id-ID', {
       style: 'currency',
@@ -373,12 +381,36 @@ export default function AdminMenuPage() {
                       </div>
                     )}
                   </div>
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 space-y-2">
                     <h3 className="font-semibold truncate">{item.name}</h3>
                     <p className="text-sm text-muted-foreground truncate">
                       {item.description || 'Tidak ada deskripsi'}
                     </p>
-                    <p className="font-bold text-primary mt-2">{formatPrice(item.price)}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-primary">{formatPrice(item.price)}</p>
+                      <div className="flex items-center gap-1">
+                        <Badge variant={(item as any).stock === null ? 'secondary' : (item as any).stock > 0 ? 'default' : 'destructive'} className="text-xs">
+                          {(item as any).stock === null ? '∞' : `Stok: ${(item as any).stock}`}
+                        </Badge>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6"
+                          onClick={(e) => { e.stopPropagation(); handleStockChange(item.id, (item as any).stock, -1); }}
+                          disabled={(item as any).stock !== null && (item as any).stock <= 0}
+                        >
+                          <span className="text-xs font-bold">-</span>
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6"
+                          onClick={(e) => { e.stopPropagation(); handleStockChange(item.id, (item as any).stock, 1); }}
+                        >
+                          <span className="text-xs font-bold">+</span>
+                        </Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>

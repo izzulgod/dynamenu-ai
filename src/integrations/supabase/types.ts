@@ -126,6 +126,7 @@ export type Database = {
           name: string
           preparation_time: number | null
           price: number
+          stock: number | null
           tags: string[] | null
           updated_at: string | null
         }
@@ -140,6 +141,7 @@ export type Database = {
           name: string
           preparation_time?: number | null
           price: number
+          stock?: number | null
           tags?: string[] | null
           updated_at?: string | null
         }
@@ -154,6 +156,7 @@ export type Database = {
           name?: string
           preparation_time?: number | null
           price?: number
+          stock?: number | null
           tags?: string[] | null
           updated_at?: string | null
         }
@@ -402,6 +405,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_daily_revenue: {
+        Args: { days_back?: number }
+        Returns: {
+          day: string
+          total_orders: number
+          total_revenue: number
+        }[]
+      }
       get_menu_item_ratings: {
         Args: never
         Returns: {
@@ -416,6 +427,14 @@ export type Database = {
           avg_rating: number
           menu_item_id: string
           total_reviews: number
+          total_sold: number
+        }[]
+      }
+      get_sales_by_category: {
+        Args: never
+        Returns: {
+          category_name: string
+          total_revenue: number
           total_sold: number
         }[]
       }

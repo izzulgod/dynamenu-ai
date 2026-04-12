@@ -484,14 +484,16 @@ export default function KitchenDashboard() {
                 Analitik
               </Button>
               {staffRole === 'admin' && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/admin/menu')}
-                >
-                  <UtensilsCrossed className="w-4 h-4 mr-2" />
-                  Kelola Menu
-                </Button>
+                <>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/admin/menu')}>
+                    <UtensilsCrossed className="w-4 h-4 mr-2" />
+                    Menu
+                  </Button>
+                  <Button variant="outline" size="sm" onClick={() => navigate('/admin/tables')}>
+                    <Bell className="w-4 h-4 mr-2" />
+                    Meja
+                  </Button>
+                </>
               )}
               <Button
                 variant="outline"
