@@ -373,12 +373,36 @@ export default function AdminMenuPage() {
                       </div>
                     )}
                   </div>
-                  <CardContent className="p-4">
+                  <CardContent className="p-4 space-y-2">
                     <h3 className="font-semibold truncate">{item.name}</h3>
                     <p className="text-sm text-muted-foreground truncate">
                       {item.description || 'Tidak ada deskripsi'}
                     </p>
-                    <p className="font-bold text-primary mt-2">{formatPrice(item.price)}</p>
+                    <div className="flex items-center justify-between">
+                      <p className="font-bold text-primary">{formatPrice(item.price)}</p>
+                      <div className="flex items-center gap-1">
+                        <Badge variant={(item as any).stock === null ? 'secondary' : (item as any).stock > 0 ? 'default' : 'destructive'} className="text-xs">
+                          {(item as any).stock === null ? '∞' : `Stok: ${(item as any).stock}`}
+                        </Badge>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6"
+                          onClick={(e) => { e.stopPropagation(); handleStockChange(item.id, (item as any).stock, -1); }}
+                          disabled={(item as any).stock !== null && (item as any).stock <= 0}
+                        >
+                          <span className="text-xs font-bold">-</span>
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-6 w-6"
+                          onClick={(e) => { e.stopPropagation(); handleStockChange(item.id, (item as any).stock, 1); }}
+                        >
+                          <span className="text-xs font-bold">+</span>
+                        </Button>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
               </motion.div>
