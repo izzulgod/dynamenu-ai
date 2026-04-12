@@ -6,6 +6,7 @@ import {
   Loader2, ShieldAlert, Image as ImageIcon, ArrowLeft, Save
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -254,6 +255,13 @@ export default function AdminMenuPage() {
       console.error('Delete error:', error);
       toast.error('Gagal menghapus menu');
     }
+  };
+
+  const handleStockChange = async (itemId: string, currentStock: number | null, delta: number) => {
+    const newStock = currentStock === null ? (delta > 0 ? 1 : 0) : Math.max(0, currentStock + delta);
+    const { error } = await supabase.from('menu_items').update({ stock: newStock } as any).eq('id', itemId);
+    if (error) { toast.error('Gagal update stok'); return; }
+    refetchItems();
   };
 
   const formatPrice = (price: number) => {
