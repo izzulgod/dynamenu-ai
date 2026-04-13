@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Plus, Trash2, Users, Loader2, ShieldAlert, LogOut } from 'lucide-react';
+import { ArrowLeft, Plus, Trash2, Users, Loader2, ShieldAlert } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
@@ -85,7 +85,7 @@ export default function AdminTablePage() {
         <Card className="max-w-md w-full"><CardContent className="pt-6 text-center space-y-4">
           <ShieldAlert className="w-12 h-12 mx-auto text-destructive" />
           <p className="text-destructive font-semibold">Akses ditolak: Hanya admin</p>
-          <Button variant="outline" onClick={() => navigate('/admin')}><LogOut className="w-4 h-4 mr-2" />Kembali</Button>
+          <Button variant="outline" onClick={() => navigate('/admin/kitchen')}><ArrowLeft className="w-4 h-4 mr-2" />Kembali ke Dashboard</Button>
         </CardContent></Card>
       </div>
     );
