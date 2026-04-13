@@ -37,7 +37,7 @@ serve(async (req) => {
     let isAuthorized = false;
     
     // Option 1: Check for admin secret (for development/demo purposes)
-    if (adminSecret === DEMO_ADMIN_SECRET || adminSecret === 'lovable-setup-temp-2026') {
+    if (adminSecret === DEMO_ADMIN_SECRET) {
       isAuthorized = true;
       console.log('[create-demo-staff] Authorized via admin secret');
     }
