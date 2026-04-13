@@ -95,69 +95,66 @@ serve(async (req) => {
       }
     );
 
-    const demoEmail = 'staff@demo.com';
-    const demoPassword = 'demo1234';
+    const accounts = [
+      { email: 'staff@demo.com', password: 'demo1234', name: 'Demo Kitchen Staff', role: 'kitchen' },
+      { email: 'admin@demo.com', password: 'demo1234', name: 'Demo Admin', role: 'admin' },
+    ];
 
-    console.log('[create-demo-staff] Creating/updating demo staff account');
-    
-    // Check if user already exists
-    const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
-    const existingUser = existingUsers?.users?.find(u => u.email === demoEmail);
+    const results = [];
 
-    let userId: string;
+    for (const account of accounts) {
+      console.log(`[create-demo-staff] Creating/updating ${account.role} account: ${account.email}`);
 
-    if (existingUser) {
-      // Update password if user exists
-      await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
-        password: demoPassword,
-      });
-      userId = existingUser.id;
-      console.log('[create-demo-staff] Updated existing user:', userId);
-    } else {
-      // Create new user
-      const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
-        email: demoEmail,
-        password: demoPassword,
-        email_confirm: true,
-      });
+      // Check if user already exists
+      const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
+      const existingUser = existingUsers?.users?.find(u => u.email === account.email);
 
-      if (createError) throw createError;
-      userId = newUser.user.id;
-      console.log('[create-demo-staff] Created new user:', userId);
-    }
+      let userId: string;
 
-    // Check if staff profile exists
-    const { data: existingProfile } = await supabaseAdmin
-      .from('staff_profiles')
-      .select('id')
-      .eq('user_id', userId)
-      .single();
-
-    if (!existingProfile) {
-      // Create staff profile with kitchen role
-      const { error: profileError } = await supabaseAdmin
-        .from('staff_profiles')
-        .insert({
-          user_id: userId,
-          name: 'Demo Kitchen Staff',
-          role: 'kitchen',
-          is_active: true,
+      if (existingUser) {
+        await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+          password: account.password,
         });
+        userId = existingUser.id;
+      } else {
+        const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
+          email: account.email,
+          password: account.password,
+          email_confirm: true,
+        });
+        if (createError) throw createError;
+        userId = newUser.user.id;
+      }
 
-      if (profileError) throw profileError;
-      console.log('[create-demo-staff] Created staff profile for user:', userId);
+      // Check if staff profile exists
+      const { data: existingProfile } = await supabaseAdmin
+        .from('staff_profiles')
+        .select('id')
+        .eq('user_id', userId)
+        .single();
+
+      if (!existingProfile) {
+        const { error: profileError } = await supabaseAdmin
+          .from('staff_profiles')
+          .insert({
+            user_id: userId,
+            name: account.name,
+            role: account.role,
+            is_active: true,
+          });
+        if (profileError) throw profileError;
+      }
+
+      results.push({ email: account.email, role: account.role });
     }
 
-    console.log('[create-demo-staff] Demo staff account ready');
-    
+    console.log('[create-demo-staff] All demo accounts ready');
+
     return new Response(
       JSON.stringify({
         success: true,
-        message: 'Demo staff account ready',
-        credentials: {
-          email: demoEmail,
-          password: demoPassword,
-        },
+        message: 'Demo accounts ready',
+        accounts: results.map(r => ({ email: r.email, password: 'demo1234', role: r.role })),
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
