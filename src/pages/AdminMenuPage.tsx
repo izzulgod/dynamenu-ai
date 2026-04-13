@@ -286,9 +286,9 @@ export default function AdminMenuPage() {
               <p className="text-muted-foreground">
                 Hanya admin yang dapat mengelola menu.
               </p>
-              <Button onClick={handleLogout} variant="outline" className="w-full">
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
+              <Button onClick={() => navigate('/admin/kitchen')} variant="outline" className="w-full">
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Kembali ke Dashboard
               </Button>
             </div>
           </CardContent>
