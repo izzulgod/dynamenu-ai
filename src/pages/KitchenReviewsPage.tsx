@@ -1,0 +1,210 @@
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
+import { ArrowLeft, Star, ShoppingBag, MessageSquare, Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+
+interface FeedbackRow {
+  id: string;
+  rating: number | null;
+  comment: string | null;
+  created_at: string | null;
+  order_id: string | null;
+  orders: {
+    table_id: string | null;
+    tables: { table_number: number } | null;
+  } | null;
+}
+
+interface MenuStat {
+  menu_item_id: string;
+  avg_rating: number;
+  total_reviews: number;
+  total_sold: number;
+}
+
+export default function KitchenReviewsPage() {
+  const navigate = useNavigate();
+  const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    const check = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { navigate('/admin'); return; }
+      const { data: profile } = await supabase
+        .from('staff_profiles')
+        .select('id')
+        .eq('user_id', session.user.id)
+        .eq('is_active', true)
+        .single();
+      setIsAuthorized(!!profile);
+    };
+    check();
+  }, [navigate]);
+
+  const { data: menuItems = [] } = useQuery({
+    queryKey: ['reviews-menu-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('menu_items').select('id, name, image_url, price').order('name');
+      if (error) throw error;
+      return data;
+    },
+    enabled: isAuthorized === true,
+  });
+
+  const { data: stats = [] } = useQuery({
+    queryKey: ['reviews-stats'],
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('get_menu_item_stats');
+      if (error) throw error;
+      return (data ?? []) as MenuStat[];
+    },
+    enabled: isAuthorized === true,
+  });
+
+  const { data: feedbacks = [] } = useQuery({
+    queryKey: ['reviews-feedback'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('feedback')
+        .select('id, rating, comment, created_at, order_id, orders(table_id, tables(table_number))')
+        .not('rating', 'is', null)
+        .order('created_at', { ascending: false })
+        .limit(200);
+      if (error) throw error;
+      return (data ?? []) as unknown as FeedbackRow[];
+    },
+    enabled: isAuthorized === true,
+  });
+
+  const { data: orderItemsMap = new Map() } = useQuery({
+    queryKey: ['reviews-order-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase.from('order_items').select('order_id, menu_item_id');
+      if (error) throw error;
+      const map = new Map<string, string[]>();
+      (data ?? []).forEach((oi: any) => {
+        if (!oi.order_id || !oi.menu_item_id) return;
+        const arr = map.get(oi.order_id) || [];
+        arr.push(oi.menu_item_id);
+        map.set(oi.order_id, arr);
+      });
+      return map;
+    },
+    enabled: isAuthorized === true,
+  });
+
+  if (isAuthorized === null) {
+    return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
+  }
+  if (isAuthorized === false) {
+    return <div className="min-h-screen flex items-center justify-center bg-background p-6"><p className="text-destructive font-semibold">Akses ditolak</p></div>;
+  }
+
+  const statsMap = new Map<string, MenuStat>();
+  stats.forEach((s) => statsMap.set(s.menu_item_id, s));
+
+  const feedbackPerMenu = new Map<string, FeedbackRow[]>();
+  feedbacks.forEach((fb) => {
+    if (!fb.order_id) return;
+    const menuIds = orderItemsMap.get(fb.order_id) || [];
+    menuIds.forEach((mid) => {
+      const arr = feedbackPerMenu.get(mid) || [];
+      arr.push(fb);
+      feedbackPerMenu.set(mid, arr);
+    });
+  });
+
+  const sortedItems = [...menuItems].sort((a, b) => {
+    const sa = statsMap.get(a.id)?.total_sold ?? 0;
+    const sb = statsMap.get(b.id)?.total_sold ?? 0;
+    return sb - sa;
+  });
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-40 bg-background border-b border-border">
+        <div className="container py-4 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/admin/kitchen')}>
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          <div>
+            <h1 className="font-bold text-foreground text-lg">Ulasan Pelanggan</h1>
+            <p className="text-xs text-muted-foreground">{feedbacks.length} ulasan</p>
+          </div>
+        </div>
+      </header>
+
+      <div className="container py-4 space-y-4">
+        {sortedItems.map((item) => {
+          const st = statsMap.get(item.id);
+          const avgRating = st?.avg_rating ?? 0;
+          const totalSold = st?.total_sold ?? 0;
+          const totalReviews = st?.total_reviews ?? 0;
+          const itemFeedbacks = feedbackPerMenu.get(item.id) || [];
+          if (itemFeedbacks.length === 0 && totalSold === 0) return null;
+
+          return (
+            <Card key={item.id}>
+              <CardContent className="p-3 space-y-2">
+                <div className="flex items-center gap-3">
+                  {item.image_url && (
+                    <img src={item.image_url} alt={item.name} className="w-10 h-10 rounded-lg object-cover" />
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold text-sm truncate">{item.name}</p>
+                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-0.5">
+                        <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                        {avgRating > 0 ? avgRating : '-'} ({totalReviews})
+                      </span>
+                      <span className="flex items-center gap-0.5">
+                        <ShoppingBag className="w-3 h-3" />
+                        {totalSold} terjual
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                {itemFeedbacks.slice(0, 5).map((fb) => {
+                  const tableNum = fb.orders?.tables?.table_number;
+                  return (
+                    <div key={fb.id} className="bg-muted/50 rounded-lg p-2 space-y-1 ml-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-[10px] px-1.5">
+                            {tableNum ? `Meja ${tableNum}` : 'Anonim'}
+                          </Badge>
+                          <div className="flex items-center gap-0.5">
+                            {[1, 2, 3, 4, 5].map((s) => (
+                              <Star key={s} className={`w-3 h-3 ${s <= (fb.rating ?? 0) ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground/20'}`} />
+                            ))}
+                          </div>
+                        </div>
+                        <span className="text-[10px] text-muted-foreground">
+                          {fb.created_at ? new Date(fb.created_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' }) : ''}
+                        </span>
+                      </div>
+                      {fb.comment && <p className="text-xs text-foreground">"{fb.comment}"</p>}
+                    </div>
+                  );
+                })}
+                {itemFeedbacks.length > 5 && (
+                  <p className="text-xs text-muted-foreground text-center ml-4">+{itemFeedbacks.length - 5} ulasan lainnya</p>
+                )}
+              </CardContent>
+            </Card>
+          );
+        })}
+        {feedbacks.length === 0 && (
+          <div className="text-center py-12">
+            <MessageSquare className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
+            <p className="text-muted-foreground">Belum ada ulasan</p>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
