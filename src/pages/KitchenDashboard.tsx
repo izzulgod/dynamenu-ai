@@ -4,12 +4,19 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ChefHat, Clock, CheckCircle, Truck, LogOut, 
   RefreshCw, Bell, Coffee, Loader2, ShieldAlert, UtensilsCrossed,
-  Banknote, QrCode, CreditCard, XCircle, AlertTriangle, BarChart3
+  Banknote, QrCode, CreditCard, XCircle, AlertTriangle, BarChart3,
+  MoreVertical, MessageSquare, TableProperties
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
