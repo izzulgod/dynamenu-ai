@@ -3,6 +3,7 @@ import { useCart } from '@/hooks/useCart';
 import { useCreateOrder } from '@/hooks/useOrders';
 import { getSessionId } from '@/lib/session';
 import { useFlyToCart } from '@/components/cart/FlyToCartProvider';
+import { getFoodPlaceholder } from '@/components/menu/menuPlaceholders';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Minus, Plus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -132,17 +133,15 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
                 
                     {/* Image */}
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-cream-dark shrink-0">
-                      {item.menuItem.image_url ?
-                  <img
-                    src={item.menuItem.image_url}
-                    alt={item.menuItem.name}
-                    className="w-full h-full object-cover" /> :
-
-
-                  <div className="w-full h-full flex items-center justify-center text-2xl">
-                          🍽️
-                        </div>
-                  }
+                      <img
+                        src={item.menuItem.image_url || getFoodPlaceholder(item.menuItem.name)}
+                        alt={item.menuItem.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = getFoodPlaceholder(item.menuItem.name);
+                        }}
+                      />
                     </div>
 
                     {/* Details */}
