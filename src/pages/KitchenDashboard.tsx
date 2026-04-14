@@ -481,23 +481,32 @@ export default function KitchenDashboard() {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/admin/analytics')}
-              >
-                <BarChart3 className="w-4 h-4 mr-2" />
-                Analitik
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/admin/menu')}>
-                <UtensilsCrossed className="w-4 h-4 mr-2" />
-                Menu
-              </Button>
-              <Button variant="outline" size="sm" onClick={() => navigate('/admin/tables')}>
-                <Bell className="w-4 h-4 mr-2" />
-                Meja
-              </Button>
+            <div className="flex items-center gap-1.5">
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => navigate('/admin/analytics')}>
+                    <BarChart3 className="w-4 h-4 mr-2" />
+                    Analitik
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin/reviews')}>
+                    <MessageSquare className="w-4 h-4 mr-2" />
+                    Ulasan
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin/menu')}>
+                    <UtensilsCrossed className="w-4 h-4 mr-2" />
+                    Edit Menu
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/admin/tables')}>
+                    <TableProperties className="w-4 h-4 mr-2" />
+                    Edit Meja
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
               <Button
                 variant="outline"
                 size="icon"
