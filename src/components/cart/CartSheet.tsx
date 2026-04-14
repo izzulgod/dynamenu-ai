@@ -133,17 +133,15 @@ export function CartSheet({ onCheckout, onNavigateToOrders, inline = false }: Ca
                 
                     {/* Image */}
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-cream-dark shrink-0">
-                      {item.menuItem.image_url ?
-                  <img
-                    src={item.menuItem.image_url}
-                    alt={item.menuItem.name}
-                    className="w-full h-full object-cover" /> :
-
-
-                  <div className="w-full h-full flex items-center justify-center text-2xl">
-                          🍽️
-                        </div>
-                  }
+                      <img
+                        src={item.menuItem.image_url || getFoodPlaceholder(item.menuItem.name)}
+                        alt={item.menuItem.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = getFoodPlaceholder(item.menuItem.name);
+                        }}
+                      />
                     </div>
 
                     {/* Details */}
