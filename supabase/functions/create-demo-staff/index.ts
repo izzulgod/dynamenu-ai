@@ -96,8 +96,8 @@ serve(async (req) => {
     );
 
     const accounts = [
-      { email: 'staff@demo.com', password: 'demo1234', name: 'Demo Kitchen Staff', role: 'kitchen' },
-      { email: 'admin@demo.com', password: 'demo1234', name: 'Demo Admin', role: 'admin' },
+      { email: 'staff@demo.com', password: 'demo1234', name: 'Kitchen Staff', role: 'kitchen' },
+      { email: 'admin@demo.com', password: 'demo1234', name: 'Admin', role: 'admin' },
     ];
 
     const results = [];
