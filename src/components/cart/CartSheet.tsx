@@ -3,6 +3,7 @@ import { useCart } from '@/hooks/useCart';
 import { useCreateOrder } from '@/hooks/useOrders';
 import { getSessionId } from '@/lib/session';
 import { useFlyToCart } from '@/components/cart/FlyToCartProvider';
+import { getFoodPlaceholder } from '@/components/menu/menuPlaceholders';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ShoppingCart, Minus, Plus, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
