@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Menu, X, BarChart3, MessageSquare, UtensilsCrossed,
-  TableProperties, LogOut, LucideIcon
+  TableProperties, LogOut, Lock, LucideIcon
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
@@ -18,33 +18,44 @@ import {
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 interface NavItem {
   label: string;
   icon: LucideIcon;
   path: string;
+  adminOnly: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Analitik', icon: BarChart3, path: '/admin/analytics' },
-  { label: 'Ulasan', icon: MessageSquare, path: '/admin/reviews' },
-  { label: 'Edit Meja', icon: TableProperties, path: '/admin/tables' },
-  { label: 'Edit Menu', icon: UtensilsCrossed, path: '/admin/menu' },
+  { label: 'Analitik', icon: BarChart3, path: '/admin/analytics', adminOnly: true },
+  { label: 'Ulasan', icon: MessageSquare, path: '/admin/reviews', adminOnly: true },
+  { label: 'Edit Meja', icon: TableProperties, path: '/admin/tables', adminOnly: true },
+  { label: 'Edit Menu', icon: UtensilsCrossed, path: '/admin/menu', adminOnly: true },
 ];
 
 interface DashboardNavMenuProps {
   onLogout: () => void | Promise<void>;
+  /** Role of the current staff member (defaults to 'waiter' if unknown) */
+  role?: string;
 }
 
-export function DashboardNavMenu({ onLogout }: DashboardNavMenuProps) {
+export function DashboardNavMenu({ onLogout, role }: DashboardNavMenuProps) {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [confirmLogoutOpen, setConfirmLogoutOpen] = useState(false);
 
-  const handleNavigate = (path: string) => {
+  const isAdmin = role === 'admin';
+
+  const handleNavigate = (item: NavItem) => {
+    if (item.adminOnly && !isAdmin) {
+      toast.error('Hanya admin yang dapat mengakses fitur ini', {
+        id: `lock-${item.path}`,
+      });
+      return;
+    }
     setOpen(false);
-    // small delay so the close animation feels natural
-    setTimeout(() => navigate(path), 150);
+    setTimeout(() => navigate(item.path), 150);
   };
 
   const handleLogoutClick = () => {
@@ -96,37 +107,61 @@ export function DashboardNavMenu({ onLogout }: DashboardNavMenuProps) {
             'max-h-[85vh] sm:max-w-md sm:mx-auto sm:left-0 sm:right-0'
           )}
         >
-          {/* Drag handle */}
           <div className="flex justify-center pt-3 pb-1">
             <div className="w-10 h-1.5 rounded-full bg-muted-foreground/30" />
           </div>
 
           <SheetHeader className="px-6 pt-2 pb-3 text-left">
             <SheetTitle className="text-base">Menu Dashboard</SheetTitle>
+            {!isAdmin && (
+              <p className="text-xs text-muted-foreground flex items-center gap-1.5">
+                <Lock className="w-3 h-3" />
+                Beberapa fitur hanya untuk admin
+              </p>
+            )}
           </SheetHeader>
 
           <div className="px-3 pb-3">
             <nav className="grid gap-1">
               {NAV_ITEMS.map((item, idx) => {
                 const Icon = item.icon;
+                const locked = item.adminOnly && !isAdmin;
                 return (
                   <motion.button
                     key={item.path}
                     initial={{ opacity: 0, y: 8 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.04 * idx, duration: 0.2, ease: 'easeOut' }}
-                    onClick={() => handleNavigate(item.path)}
+                    onClick={() => handleNavigate(item)}
+                    aria-disabled={locked}
                     className={cn(
                       'flex items-center gap-3 w-full px-4 py-3 rounded-xl',
-                      'text-sm font-medium text-foreground',
-                      'hover:bg-muted active:bg-muted/80 transition-colors',
-                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary'
+                      'text-sm font-medium transition-colors text-left',
+                      'focus:outline-none focus-visible:ring-2 focus-visible:ring-primary',
+                      locked
+                        ? 'text-muted-foreground/70 hover:bg-muted/40 cursor-not-allowed'
+                        : 'text-foreground hover:bg-muted active:bg-muted/80'
                     )}
                   >
-                    <span className="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                    <span
+                      className={cn(
+                        'relative w-9 h-9 rounded-lg flex items-center justify-center',
+                        locked ? 'bg-muted text-muted-foreground' : 'bg-primary/10 text-primary'
+                      )}
+                    >
                       <Icon className="w-4 h-4" />
+                      {locked && (
+                        <span className="absolute -bottom-1 -right-1 w-4 h-4 rounded-full bg-background border border-border flex items-center justify-center">
+                          <Lock className="w-2.5 h-2.5 text-muted-foreground" />
+                        </span>
+                      )}
                     </span>
-                    <span>{item.label}</span>
+                    <span className="flex-1">{item.label}</span>
+                    {locked && (
+                      <span className="text-[10px] uppercase tracking-wide text-muted-foreground/80 px-1.5 py-0.5 rounded bg-muted">
+                        Admin
+                      </span>
+                    )}
                   </motion.button>
                 );
               })}
