@@ -482,58 +482,16 @@ export default function KitchenDashboard() {
               </div>
             </div>
             <div className="flex items-center gap-1.5">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" size="icon">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem onClick={() => navigate('/admin/analytics')}>
-                    <BarChart3 className="w-4 h-4 mr-2" />
-                    Analitik
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/admin/reviews')}>
-                    <MessageSquare className="w-4 h-4 mr-2" />
-                    Ulasan
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/admin/menu')}>
-                    <UtensilsCrossed className="w-4 h-4 mr-2" />
-                    Edit Menu
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/admin/tables')}>
-                    <TableProperties className="w-4 h-4 mr-2" />
-                    Edit Meja
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
               <Button
                 variant="outline"
                 size="icon"
                 onClick={() => refetch()}
                 disabled={isLoading}
+                aria-label="Refresh"
               >
                 <RefreshCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
               </Button>
-              <AlertDialog>
-                <AlertDialogTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <LogOut className="w-4 h-4" />
-                  </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                  <AlertDialogHeader>
-                    <AlertDialogTitle>Yakin mau logout?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                      Kamu akan keluar dari dashboard dapur.
-                    </AlertDialogDescription>
-                  </AlertDialogHeader>
-                  <AlertDialogFooter>
-                    <AlertDialogCancel>Batal</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleLogout}>Logout</AlertDialogAction>
-                  </AlertDialogFooter>
-                </AlertDialogContent>
-              </AlertDialog>
+              <DashboardNavMenu onLogout={handleLogout} />
             </div>
           </div>
         </div>
