@@ -33,11 +33,12 @@ export default function KitchenAnalyticsPage() {
       if (!session) { navigate('/admin'); return; }
       const { data: profile } = await supabase
         .from('staff_profiles')
-        .select('id')
+        .select('id, role')
         .eq('user_id', session.user.id)
         .eq('is_active', true)
         .single();
-      setIsAuthorized(!!profile);
+      // Admin only
+      setIsAuthorized(!!profile && profile.role === 'admin');
     };
     check();
   }, [navigate]);
@@ -70,7 +71,20 @@ export default function KitchenAnalyticsPage() {
     return <div className="min-h-screen flex items-center justify-center bg-background"><Loader2 className="w-8 h-8 animate-spin text-primary" /></div>;
   }
   if (isAuthorized === false) {
-    return <div className="min-h-screen flex items-center justify-center bg-background p-6"><p className="text-destructive font-semibold">Akses ditolak</p></div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background p-6">
+        <Card className="max-w-md w-full"><CardContent className="pt-6 text-center space-y-4">
+          <div className="w-16 h-16 mx-auto bg-destructive/10 rounded-full flex items-center justify-center">
+            <Star className="w-8 h-8 text-destructive" />
+          </div>
+          <h2 className="text-xl font-bold text-destructive">Akses Ditolak</h2>
+          <p className="text-muted-foreground">Hanya admin yang dapat mengakses analitik.</p>
+          <Button variant="outline" className="w-full" onClick={() => navigate('/admin/kitchen')}>
+            <ArrowLeft className="w-4 h-4 mr-2" />Kembali ke Dashboard
+          </Button>
+        </CardContent></Card>
+      </div>
+    );
   }
 
   const statsMap = new Map<string, MenuStat>();

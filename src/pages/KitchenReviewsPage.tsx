@@ -36,11 +36,12 @@ export default function KitchenReviewsPage() {
       if (!session) { navigate('/admin'); return; }
       const { data: profile } = await supabase
         .from('staff_profiles')
-        .select('id')
+        .select('id, role')
         .eq('user_id', session.user.id)
         .eq('is_active', true)
         .single();
-      setIsAuthorized(!!profile);
+      // Admin only
+      setIsAuthorized(!!profile && profile.role === 'admin');
     };
     check();
   }, [navigate]);
