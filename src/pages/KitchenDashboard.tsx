@@ -485,7 +485,7 @@ export default function KitchenDashboard() {
               >
                 <RefreshCw className={cn('w-4 h-4', isLoading && 'animate-spin')} />
               </Button>
-              <DashboardNavMenu onLogout={handleLogout} />
+              <DashboardNavMenu onLogout={handleLogout} role={staffRole} />
             </div>
           </div>
         </div>

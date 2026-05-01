@@ -15,23 +15,15 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
-  // Check if already logged in
+  // Check if already logged in (one-time check, no listener loop)
   useEffect(() => {
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/admin/kitchen');
-      }
-    };
-    checkSession();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session) {
-        navigate('/admin/kitchen');
+    let mounted = true;
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (mounted && session) {
+        navigate('/admin/kitchen', { replace: true });
       }
     });
-
-    return () => subscription.unsubscribe();
+    return () => { mounted = false; };
   }, [navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -53,12 +45,12 @@ export default function AdminLoginPage() {
       if (error) throw error;
 
       toast.success('Login berhasil!');
-      navigate('/admin/kitchen');
+      // navigate immediately; dashboard will hydrate session
+      navigate('/admin/kitchen', { replace: true });
     } catch (error: unknown) {
       console.error('Login error:', error);
       const errorMessage = error instanceof Error ? error.message : 'Login gagal';
       toast.error(errorMessage);
-    } finally {
       setIsLoading(false);
     }
   };
