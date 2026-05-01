@@ -32,6 +32,7 @@ import { MenuItem, MenuCategory } from '@/types/restaurant';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { getFoodPlaceholder } from '@/components/menu/menuPlaceholders';
 
 export default function AdminMenuPage() {
   const navigate = useNavigate();
@@ -352,17 +353,20 @@ export default function AdminMenuPage() {
                 exit={{ opacity: 0, scale: 0.9 }}
               >
                 <Card className="overflow-hidden group">
-                  {/* Image */}
+                  {/* Image - sync placeholder with user menu */}
                   <div className="relative h-40 bg-muted">
-                    {item.image_url ? (
-                      <img
-                        src={item.image_url}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <ImageIcon className="w-12 h-12 text-muted-foreground/40" />
+                    <img
+                      src={item.image_url || getFoodPlaceholder(item.name)}
+                      alt={item.name}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        const t = e.target as HTMLImageElement;
+                        t.src = getFoodPlaceholder(item.name);
+                      }}
+                    />
+                    {!item.image_url && (
+                      <div className="absolute top-2 right-2 bg-background/80 backdrop-blur text-[10px] px-1.5 py-0.5 rounded text-muted-foreground">
+                        Placeholder
                       </div>
                     )}
                     {/* Edit/Delete Overlay */}
