@@ -142,8 +142,8 @@ export default function MenuPage() {
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center overflow-hidden">
                 <img
 
-                  alt="Restaurant Logo"
-                  className="w-full h-full object-cover" src="/lovable-uploads/2d8b9b22-d300-4b8f-8528-06aafbe9f5e1.png" />
+                  alt="DynamenuAI Logo"
+                  className="w-full h-full object-cover" src="/logo.png" />
                 
               </div>
               <div>
