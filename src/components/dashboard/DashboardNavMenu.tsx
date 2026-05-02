@@ -212,23 +212,47 @@ function SwipeDownHandle({ onClose }: { onClose: () => void }) {
   const deltaY = useRef(0);
   const handleRef = useRef<HTMLDivElement | null>(null);
 
+  const getSheet = () =>
+    (handleRef.current?.parentElement as HTMLElement | null) ?? null;
+
   const setTranslate = (y: number) => {
-    if (handleRef.current?.parentElement) {
-      const sheet = handleRef.current.parentElement as HTMLElement;
-      sheet.style.transform = y > 0 ? `translateY(${y}px)` : '';
-      sheet.style.transition = 'none';
-    }
+    const sheet = getSheet();
+    if (!sheet) return;
+    sheet.style.transition = 'none';
+    sheet.style.transform = y > 0 ? `translate3d(0, ${y}px, 0)` : '';
   };
 
-  const reset = (close: boolean) => {
-    if (handleRef.current?.parentElement) {
-      const sheet = handleRef.current.parentElement as HTMLElement;
-      sheet.style.transition = 'transform 220ms cubic-bezier(0.4, 0, 0.2, 1)';
-      sheet.style.transform = '';
+  const springBack = () => {
+    const sheet = getSheet();
+    if (!sheet) return;
+    sheet.style.transition = 'transform 220ms cubic-bezier(0.32, 0.72, 0, 1)';
+    sheet.style.transform = '';
+    const cleanup = () => {
+      sheet.style.transition = '';
+      sheet.removeEventListener('transitionend', cleanup);
+    };
+    sheet.addEventListener('transitionend', cleanup);
+  };
+
+  const animateOutAndClose = () => {
+    const sheet = getSheet();
+    if (!sheet) {
+      onClose();
+      return;
     }
-    startY.current = null;
-    deltaY.current = 0;
-    if (close) onClose();
+    const distance = Math.max(sheet.getBoundingClientRect().height, 400);
+    sheet.style.transition = 'transform 200ms cubic-bezier(0.32, 0.72, 0, 1)';
+    sheet.style.transform = `translate3d(0, ${distance}px, 0)`;
+    const done = () => {
+      sheet.removeEventListener('transitionend', done);
+      // Clear inline styles BEFORE close so Radix exit animation has a clean slate.
+      sheet.style.transition = '';
+      sheet.style.transform = '';
+      onClose();
+    };
+    sheet.addEventListener('transitionend', done);
+    // Safety fallback in case transitionend doesn't fire.
+    window.setTimeout(done, 260);
   };
 
   return (
@@ -248,9 +272,16 @@ function SwipeDownHandle({ onClose }: { onClose: () => void }) {
       }}
       onTouchEnd={() => {
         const shouldClose = deltaY.current > 90;
-        reset(shouldClose);
+        startY.current = null;
+        deltaY.current = 0;
+        if (shouldClose) animateOutAndClose();
+        else springBack();
       }}
-      onTouchCancel={() => reset(false)}
+      onTouchCancel={() => {
+        startY.current = null;
+        deltaY.current = 0;
+        springBack();
+      }}
       className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none"
       aria-label="Geser ke bawah untuk menutup"
     >
