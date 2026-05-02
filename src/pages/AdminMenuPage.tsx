@@ -332,9 +332,6 @@ export default function AdminMenuPage() {
                 <Plus className="w-4 h-4 mr-2" />
                 Tambah Menu
               </Button>
-              <Button variant="ghost" size="icon" onClick={handleLogout}>
-                <LogOut className="w-4 h-4" />
-              </Button>
             </div>
           </div>
         </div>
