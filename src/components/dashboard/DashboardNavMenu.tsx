@@ -107,9 +107,7 @@ export function DashboardNavMenu({ onLogout, role }: DashboardNavMenuProps) {
             'max-h-[85vh] sm:max-w-md sm:mx-auto sm:left-0 sm:right-0'
           )}
         >
-          <div className="flex justify-center pt-3 pb-1">
-            <div className="w-10 h-1.5 rounded-full bg-muted-foreground/30" />
-          </div>
+          <SwipeDownHandle onClose={() => setOpen(false)} />
 
           <SheetHeader className="px-6 pt-2 pb-3 text-left">
             <SheetTitle className="text-base">Menu Dashboard</SheetTitle>
