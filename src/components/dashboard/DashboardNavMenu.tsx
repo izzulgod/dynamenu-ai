@@ -205,3 +205,56 @@ export function DashboardNavMenu({ onLogout, role }: DashboardNavMenuProps) {
     </>
   );
 }
+
+/** Drag handle area at top of bottom sheet — swipe down to close. */
+function SwipeDownHandle({ onClose }: { onClose: () => void }) {
+  const startY = useRef<number | null>(null);
+  const deltaY = useRef(0);
+  const handleRef = useRef<HTMLDivElement | null>(null);
+
+  const setTranslate = (y: number) => {
+    if (handleRef.current?.parentElement) {
+      const sheet = handleRef.current.parentElement as HTMLElement;
+      sheet.style.transform = y > 0 ? `translateY(${y}px)` : '';
+      sheet.style.transition = 'none';
+    }
+  };
+
+  const reset = (close: boolean) => {
+    if (handleRef.current?.parentElement) {
+      const sheet = handleRef.current.parentElement as HTMLElement;
+      sheet.style.transition = 'transform 220ms cubic-bezier(0.4, 0, 0.2, 1)';
+      sheet.style.transform = '';
+    }
+    startY.current = null;
+    deltaY.current = 0;
+    if (close) onClose();
+  };
+
+  return (
+    <div
+      ref={handleRef}
+      onTouchStart={(e) => {
+        startY.current = e.touches[0].clientY;
+        deltaY.current = 0;
+      }}
+      onTouchMove={(e) => {
+        if (startY.current === null) return;
+        const dy = e.touches[0].clientY - startY.current;
+        if (dy > 0) {
+          deltaY.current = dy;
+          setTranslate(dy);
+        }
+      }}
+      onTouchEnd={() => {
+        const shouldClose = deltaY.current > 90;
+        reset(shouldClose);
+      }}
+      onTouchCancel={() => reset(false)}
+      className="flex justify-center pt-3 pb-2 cursor-grab active:cursor-grabbing touch-none"
+      aria-label="Geser ke bawah untuk menutup"
+    >
+      <div className="w-12 h-1.5 rounded-full bg-muted-foreground/40" />
+    </div>
+  );
+}
