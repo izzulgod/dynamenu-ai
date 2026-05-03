@@ -154,7 +154,7 @@ serve(async (req) => {
       JSON.stringify({
         success: true,
         message: 'Demo accounts ready',
-        accounts: results.map(r => ({ email: r.email, password: 'demo1234', role: r.role })),
+        accounts: results.map(r => ({ email: r.email, role: r.role })),
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

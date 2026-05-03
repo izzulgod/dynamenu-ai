@@ -120,12 +120,6 @@ export default function AdminLoginPage() {
               </Button>
             </form>
             
-            <div className="mt-4 p-3 bg-muted rounded-lg text-xs text-muted-foreground space-y-1">
-              <p className="font-medium text-foreground text-center">Demo Credentials:</p>
-              <p>👨‍🍳 Kitchen Staff: <span className="font-mono">staff@demo.com</span> / <span className="font-mono">demo1234</span></p>
-              <p>🔐 Admin: <span className="font-mono">admin@demo.com</span> / <span className="font-mono">demo1234</span></p>
-              <p className="text-center pt-1 opacity-70">Admin dapat mengelola menu, meja & stok</p>
-            </div>
           </CardContent>
         </Card>
       </motion.div>
