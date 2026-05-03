@@ -1,7 +1,7 @@
 # 📚 RestoAI (DynaMenu AI) - Dokumentasi Teknis Lengkap
 
-**Versi**: 2.0  
-**Terakhir Diperbarui**: Maret 2026  
+**Versi**: 2.1  
+**Terakhir Diperbarui**: Mei 2026  
 **Deskripsi**: Sistem pemesanan restoran cerdas dengan AI Assistant berbasis suara dan teks.  
 **Published URL**: https://dynamenu-ai.lovable.app
 
