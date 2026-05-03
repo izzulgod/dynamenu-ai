@@ -153,6 +153,16 @@ serve(async (req) => {
       );
     }
 
+    // 4b. Validate voiceId format to prevent URL path injection
+    if (voiceId !== undefined && voiceId !== null) {
+      if (typeof voiceId !== 'string' || !/^[a-zA-Z0-9]{5,50}$/.test(voiceId)) {
+        return new Response(
+          JSON.stringify({ error: 'Invalid voiceId format' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
+
     // 5. Check for ElevenLabs API key
     const ELEVENLABS_API_KEY = Deno.env.get('ELEVENLABS_API_KEY');
     if (!ELEVENLABS_API_KEY) {

@@ -95,9 +95,27 @@ serve(async (req) => {
       }
     );
 
+    // SECURITY: Pull passwords from environment - no hardcoded credentials
+    const staffPassword = Deno.env.get('DEMO_STAFF_PASSWORD');
+    const adminPassword = Deno.env.get('DEMO_ADMIN_PASSWORD');
+
+    if (!staffPassword || !adminPassword) {
+      console.warn('[create-demo-staff] DEMO_STAFF_PASSWORD or DEMO_ADMIN_PASSWORD not configured');
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: 'Demo passwords not configured. Set DEMO_STAFF_PASSWORD and DEMO_ADMIN_PASSWORD secrets.',
+        }),
+        {
+          status: 503,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
     const accounts = [
-      { email: 'staff@demo.com', password: 'demo1234', name: 'Kitchen Staff', role: 'kitchen' },
-      { email: 'admin@demo.com', password: 'demo1234', name: 'Admin', role: 'admin' },
+      { email: 'staff@demo.com', password: staffPassword, name: 'Kitchen Staff', role: 'kitchen' },
+      { email: 'admin@demo.com', password: adminPassword, name: 'Admin', role: 'admin' },
     ];
 
     const results = [];
