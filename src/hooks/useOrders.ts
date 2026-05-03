@@ -200,31 +200,17 @@ export function useUpdatePayment() {
     mutationFn: async ({
       orderId,
       paymentMethod,
-      paymentStatus,
     }: {
       orderId: string;
       paymentMethod: 'qris' | 'cash';
-      paymentStatus: 'pending' | 'paid' | 'failed';
+      paymentStatus?: 'pending' | 'paid' | 'failed';
     }) => {
-      const updateData: Partial<Order> = {
-        payment_method: paymentMethod,
-        payment_status: paymentStatus,
-      };
-
-      // If paid, also update status to confirmed
-      if (paymentStatus === 'paid') {
-        updateData.status = 'confirmed';
-      }
-
-      const { data, error } = await supabase
-        .from('orders')
-        .update(updateData)
-        .eq('id', orderId)
-        .select()
-        .single();
-
+      const { data, error } = await supabase.rpc('set_my_order_payment', {
+        _order_id: orderId,
+        _payment_method: paymentMethod,
+      });
       if (error) throw error;
-      return data as Order;
+      return data as unknown as Order;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['orders'] });
