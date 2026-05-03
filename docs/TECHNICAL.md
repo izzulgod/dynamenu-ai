@@ -613,6 +613,7 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
 // Item: Analitik · Ulasan · Edit Meja · Edit Menu · Logout
 ```
 
+### 7.2 Feature Components
 
 
 #### `CartSheet.tsx` - Keranjang Belanja
