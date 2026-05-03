@@ -218,76 +218,75 @@ project-root/
 ├── src/
 │   ├── components/                # React Components
 │   │   ├── cart/
-│   │   │   └── CartSheet.tsx      # Shopping Cart Drawer
+│   │   │   ├── CartSheet.tsx              # Shopping Cart Drawer (swipe to close)
+│   │   │   └── FlyToCartProvider.tsx      # Animasi item terbang ke cart
 │   │   ├── chat/
-│   │   │   └── AIChat.tsx         # AI Chat Interface
+│   │   │   └── AIChat.tsx                 # AI Chat Interface
+│   │   ├── dashboard/
+│   │   │   └── DashboardNavMenu.tsx       # Hamburger nav (admin & kitchen)
 │   │   ├── menu/
-│   │   │   ├── CategoryTabs.tsx   # Category Navigation (tanpa emoji)
-│   │   │   └── MenuItemCard.tsx   # Menu Item Display
+│   │   │   ├── CategoryTabs.tsx           # Kategori: Semua / Makanan / Minuman
+│   │   │   ├── MenuItemCard.tsx           # Menu item card
+│   │   │   └── menuPlaceholders.ts        # Placeholder gambar otomatis
 │   │   ├── orders/
-│   │   │   └── OrderHistory.tsx   # Order Tracking
+│   │   │   ├── OrderHistory.tsx           # Order tracking + checkout terpusat
+│   │   │   └── OrderRating.tsx            # Form rating bintang & ulasan
 │   │   ├── payment/
-│   │   │   └── PaymentDialog.tsx  # Payment Modal
-│   │   ├── ui/                    # shadcn/ui Components
-│   │   └── voice/
-│   │       ├── VoiceAssistantBubble.tsx  # Floating Voice UI
-│   │       └── VoiceAssistantButton.tsx  # Activation Button
+│   │   │   └── PaymentDialog.tsx          # Modal pembayaran (Cash/QRIS)
+│   │   ├── ui/                            # shadcn/ui (hanya yang dipakai)
+│   │   ├── voice/
+│   │   │   ├── VoiceAssistantBubble.tsx   # Floating voice bubble (global)
+│   │   │   └── VoiceAssistantButton.tsx   # Tombol aktivasi voice di chat
+│   │   ├── QRScannerDialog.tsx            # Scanner QR meja di landing page
+│   │   └── SplashScreen.tsx               # Splash animation (Framer Motion)
 │   │
 │   ├── hooks/                     # Custom React Hooks
-│   │   ├── useCart.ts             # Cart State (Zustand)
-│   │   ├── useChat.ts            # AI Chat Logic
-│   │   ├── useMenu.ts            # Menu Data Fetching
-│   │   ├── useOrders.ts          # Order CRUD + Realtime
-│   │   ├── useTable.ts           # Table Validation
-│   │   ├── useTTS.ts             # Text-to-Speech
-│   │   ├── useVoiceInput.ts      # Speech-to-Text
-│   │   ├── useCancelOrder.ts     # Customer Cancel Order
-│   │   ├── useDeleteOrder.ts     # Delete Cancelled Orders
-│   │   ├── useKitchenCancelOrder.ts  # Kitchen Cancel Order
-│   │   ├── useConfirmPayment.ts  # Cash Payment Confirmation
-│   │   └── use-mobile.tsx        # Mobile Detection
+│   │   ├── useCart.ts                     # Cart state (Zustand)
+│   │   ├── useChat.ts                     # AI chat logic (anti-double-trigger)
+│   │   ├── useMenu.ts                     # Menu data fetching
+│   │   ├── useMenuStats.ts                # Statistik popularitas item
+│   │   ├── useOrders.ts                   # Order CRUD + realtime
+│   │   ├── useTable.ts                    # Validasi meja
+│   │   ├── useTTS.ts                      # Text-to-Speech (ElevenLabs)
+│   │   ├── useVoiceInput.ts               # Speech-to-Text
+│   │   ├── useCancelOrder.ts              # Customer cancel order
+│   │   ├── useDeleteOrder.ts              # Hapus pesanan dibatalkan
+│   │   ├── useKitchenCancelOrder.ts       # Kitchen cancel + alasan
+│   │   ├── useConfirmPayment.ts           # Konfirmasi cash dari kitchen
+│   │   ├── useFeedback.ts                 # Submit rating & review
+│   │   ├── useAnalytics.ts                # Data dashboard analitik
+│   │   └── use-mobile.tsx                 # Mobile detection
 │   │
-│   ├── integrations/
-│   │   └── supabase/
-│   │       ├── client.ts         # Supabase Client (auto-generated, JANGAN EDIT)
-│   │       └── types.ts          # Database Types (auto-generated, JANGAN EDIT)
+│   ├── integrations/supabase/             # Auto-generated, JANGAN EDIT
 │   │
 │   ├── lib/
-│   │   ├── session.ts            # Session ID Management
+│   │   ├── session.ts            # Session ID Management (UUID)
 │   │   └── utils.ts              # Utility Functions (cn)
 │   │
 │   ├── pages/                    # Page Components
-│   │   ├── Index.tsx             # Landing Page
-│   │   ├── MenuPage.tsx          # Customer Menu Page
-│   │   ├── AdminLoginPage.tsx    # Staff Login
-│   │   ├── KitchenDashboard.tsx  # Kitchen Order Management
-│   │   ├── AdminMenuPage.tsx     # Menu Management (Admin)
-│   │   └── NotFound.tsx          # 404 Page
+│   │   ├── Index.tsx                  # Landing page + QR scanner
+│   │   ├── MenuPage.tsx               # Customer menu (tab: Menu/Pesanan/Chat)
+│   │   ├── AdminLoginPage.tsx         # Staff login
+│   │   ├── KitchenDashboard.tsx       # Kitchen kanban + realtime
+│   │   ├── KitchenAnalyticsPage.tsx   # Dashboard analitik (admin)
+│   │   ├── KitchenReviewsPage.tsx     # Daftar ulasan (admin)
+│   │   ├── AdminMenuPage.tsx          # Manajemen menu (admin)
+│   │   ├── AdminTablePage.tsx         # Manajemen meja (admin)
+│   │   └── NotFound.tsx               # 404 page
 │   │
-│   ├── stores/
-│   │   └── voiceAssistantStore.ts # Voice Assistant State (Zustand)
-│   │
-│   ├── types/
-│   │   ├── restaurant.ts         # Domain Types
-│   │   └── ai-actions.ts         # AI Action Types
-│   │
-│   ├── App.tsx                   # Root Component & Routes
-│   ├── App.css                   # Global Styles
-│   ├── index.css                 # Tailwind & CSS Variables (Design System)
-│   ├── main.tsx                  # Entry Point
-│   └── NavLink.tsx               # Navigation Component
+│   ├── stores/voiceAssistantStore.ts  # Voice assistant state (Zustand, global)
+│   ├── types/                          # restaurant.ts, ai-actions.ts
+│   ├── App.tsx                         # Root component & routes
+│   ├── index.css                       # Tailwind & CSS Variables (Design System)
+│   └── main.tsx                        # Entry point
 │
 ├── supabase/
 │   ├── config.toml               # Supabase Configuration
 │   ├── migrations/               # Database Migrations (read-only)
 │   └── functions/                # Edge Functions
-│       ├── restaurant-ai/
-│       │   ├── index.ts          # AI Chat Handler
-│       │   └── deno.json         # Deno imports
-│       ├── elevenlabs-tts/
-│       │   └── index.ts          # TTS Proxy
-│       └── create-demo-staff/
-│           └── index.ts          # Demo Staff Creation
+│       ├── restaurant-ai/        # AI Chat Handler (Gemini)
+│       ├── elevenlabs-tts/       # TTS Proxy (rate-limited)
+│       └── create-demo-staff/    # Demo Staff Creation (admin secret)
 │
 ├── vercel.json                   # Vercel SPA routing config
 ├── tailwind.config.ts            # Tailwind Configuration
