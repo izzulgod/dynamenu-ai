@@ -405,6 +405,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cancel_my_order: {
+        Args: { _order_id: string }
+        Returns: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
+          session_id: string
+          status: Database["public"]["Enums"]["order_status"] | null
+          table_id: string | null
+          total_amount: number | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       get_daily_revenue: {
         Args: { days_back?: number }
         Returns: {
@@ -446,6 +467,30 @@ export type Database = {
         Returns: boolean
       }
       is_active_staff: { Args: { user_uuid: string }; Returns: boolean }
+      set_my_order_payment: {
+        Args: {
+          _order_id: string
+          _payment_method: Database["public"]["Enums"]["payment_method"]
+        }
+        Returns: {
+          created_at: string | null
+          id: string
+          notes: string | null
+          payment_method: Database["public"]["Enums"]["payment_method"] | null
+          payment_status: Database["public"]["Enums"]["payment_status"] | null
+          session_id: string
+          status: Database["public"]["Enums"]["order_status"] | null
+          table_id: string | null
+          total_amount: number | null
+          updated_at: string | null
+        }
+        SetofOptions: {
+          from: "*"
+          to: "orders"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
     }
     Enums: {
       discount_type: "percent" | "fixed"
