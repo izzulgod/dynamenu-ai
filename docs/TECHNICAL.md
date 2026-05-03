@@ -593,7 +593,27 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
 // - Order cancellation with reason
 ```
 
-### 7.2 Feature Components
+#### `DashboardNavMenu.tsx` - Navigasi Dashboard (Hamburger)
+```typescript
+// Pengganti tombol-tombol nav yang tersebar di header admin/kitchen.
+// UI/UX:
+// - Tombol hamburger (☰) ⇄ close (✕) dengan morph rotate animation
+// - Bottom-sheet (Framer Motion) slide + fade dari bawah
+// - Backdrop gelap blur, tap di luar untuk menutup
+// - Drag-to-dismiss: drag y native framer-motion (spring),
+//   threshold 80px atau velocity > 550px/s untuk menutup
+// - Item nav dengan icon bulat, animasi stagger fade-up
+//
+// RBAC:
+// - role === 'admin' → semua menu aktif
+// - role === 'waiter' (kitchen staff) → menu admin terkunci dengan
+//   ikon gembok + badge "Admin"; klik menampilkan toast "Hanya admin..."
+// - Tombol Logout selalu aktif, dengan AlertDialog konfirmasi
+//
+// Item: Analitik · Ulasan · Edit Meja · Edit Menu · Logout
+```
+
+
 
 #### `CartSheet.tsx` - Keranjang Belanja
 ```typescript
