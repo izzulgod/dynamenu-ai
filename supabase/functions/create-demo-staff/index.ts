@@ -130,9 +130,11 @@ serve(async (req) => {
       let userId: string;
 
       if (existingUser) {
-        await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+        const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
           password: account.password,
+          email_confirm: true,
         });
+        if (updateError) throw new Error(`Failed to update ${account.email}: ${updateError.message}`);
         userId = existingUser.id;
       } else {
         const { data: newUser, error: createError } = await supabaseAdmin.auth.admin.createUser({
