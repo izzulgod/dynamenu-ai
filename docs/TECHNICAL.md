@@ -3,7 +3,7 @@
 **Versi**: 2.1  
 **Terakhir Diperbarui**: Mei 2026  
 **Deskripsi**: Sistem pemesanan restoran cerdas dengan AI Assistant berbasis suara dan teks.  
-**Published URL**: https://dynamenu-ai.lovable.app
+**Published URL**: https://dynamenu-ai.vercel.app
 
 ---
 
@@ -196,8 +196,6 @@ CUSTOMER ORDERING FLOW:
 | **Web Speech API** | Browser-native STT (Speech-to-Text) |
 | **ElevenLabs** | Text-to-Speech (Indonesian voice) |
 
-> **Catatan**: Lovable AI Gateway bersifat spesifik platform. Jika migrasi ke hosting lain, perlu diganti ke provider AI langsung (Google Gemini / OpenAI). Lihat [docs/MIGRATION.md](./MIGRATION.md).
-
 ---
 
 ## 4. Struktur Proyek
@@ -205,8 +203,6 @@ CUSTOMER ORDERING FLOW:
 ```
 project-root/
 ├── docs/                          # Dokumentasi
-│   ├── API.md                     # API Reference
-│   ├── MIGRATION.md               # Panduan Migrasi ke Vercel/Netlify
 │   └── TECHNICAL.md               # Dokumentasi Teknis (file ini)
 │
 ├── public/                        # Static Assets
@@ -614,7 +610,6 @@ ALTER PUBLICATION supabase_realtime ADD TABLE public.orders;
 ```
 
 ### 7.2 Feature Components
-
 
 #### `CartSheet.tsx` - Keranjang Belanja
 ```typescript
@@ -1334,17 +1329,6 @@ DEMO_ADMIN_SECRET       # For demo staff creation
 □ Storage buckets set up (aimenu - public)
 ```
 
-### 15.4 Migrasi ke Vercel / Netlify
-
-Panduan lengkap migrasi tersedia di **[docs/MIGRATION.md](./MIGRATION.md)**, mencakup:
-- Setup Supabase project sendiri
-- Export & import database
-- Deploy Edge Functions
-- Penggantian AI provider (Lovable AI Gateway → Google Gemini / OpenAI)
-- Konfigurasi environment variables
-- Setup SPA routing (`vercel.json` / `_redirects`)
-- Konfigurasi domain & CORS
-
 ### 15.5 File Konfigurasi Deployment
 
 | File | Platform | Fungsi |
@@ -1453,13 +1437,6 @@ export interface AIResponse {
 | `restaurant-ai` | 15 requests | 1 minute |
 | Client-side chat | 2 seconds | Per request |
 | ElevenLabs TTS | Per API plan | - |
-
-### D. Dokumen Terkait
-
-| Dokumen | Deskripsi |
-|---------|-----------|
-| [docs/API.md](./API.md) | API Reference |
-| [docs/MIGRATION.md](./MIGRATION.md) | Panduan Migrasi ke Vercel/Netlify |
 
 ---
 
