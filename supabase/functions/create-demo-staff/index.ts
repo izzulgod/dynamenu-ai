@@ -114,14 +114,16 @@ serve(async (req) => {
     }
 
     const accounts = [
-      { email: 'staff@demo.com', password: staffPassword, name: 'Kitchen Staff', role: 'kitchen' },
       { email: 'admin@demo.com', password: adminPassword, name: 'Admin', role: 'admin' },
+      { email: 'staff@demo.com', password: staffPassword, name: 'Kitchen Staff', role: 'kitchen' },
     ];
 
     const results = [];
+    const errors = [];
 
     for (const account of accounts) {
-      console.log(`[create-demo-staff] Creating/updating ${account.role} account: ${account.email}`);
+      try {
+        console.log(`[create-demo-staff] Creating/updating ${account.role} account: ${account.email}`);
 
       // Check if user already exists
       const { data: existingUsers } = await supabaseAdmin.auth.admin.listUsers();
@@ -165,18 +167,25 @@ serve(async (req) => {
         if (profileError) throw profileError;
       }
 
-      results.push({ email: account.email, role: account.role });
+        results.push({ email: account.email, role: account.role });
+      } catch (accountError) {
+        const message = accountError instanceof Error ? accountError.message : `Failed to update ${account.email}`;
+        console.error(`[create-demo-staff] ${message}`);
+        errors.push({ email: account.email, role: account.role, error: message });
+      }
     }
 
     console.log('[create-demo-staff] All demo accounts ready');
 
     return new Response(
       JSON.stringify({
-        success: true,
-        message: 'Demo accounts ready',
+        success: results.length > 0,
+        message: errors.length ? 'Some demo accounts failed to update' : 'Demo accounts ready',
         accounts: results.map(r => ({ email: r.email, role: r.role })),
+        errors,
       }),
       {
+        status: results.length > 0 ? 200 : 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       }
     );
